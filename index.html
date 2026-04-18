@@ -1821,44 +1821,31 @@ function selectAnswer(chosen) {
   box.classList.add('show');
 }
 
+function truncate(str, max) {
+  return str.length <= max ? str : str.substring(0, max - 1) + '…';
+}
+
 const POST_TEMPLATES = [
-  (q, rule) => `🃏 #TDAポーカークイズ
-
-Q. ${q.q}
-
-${q.opts.join('\n')}
-
-⬇️ 答えは下に
-.
-.
-.
-✅ 正解：${q.opts[q.ans]}
-
-📖 ${q.explain}
-
-#ポーカー #TDA #トーナメント #ポーカールール`,
-
-  (q, rule) => `♠️ ポーカーTDA知識クイズ #${q.ruleN}
-
-${q.q}
-
-${q.opts.map((o,i)=>i===q.ans?`👉 ${o}`:o).join('\n')}
-
-解説：${q.explain}
-
-#PokerTDA #ポーカー #トーナメントルール #TDA2024`,
-
-  (q, rule) => `【TDA Quiz】ルール${q.ruleN}：${rule ? rule.title : ''}
-
-❓ ${q.q}
-
-${q.opts.join('\n')}
-
-―
-正解：${q.opts[q.ans]}
-${q.explain}
-
-#ポーカー #TDA #カジノ #PokerRules`,
+  (q, rule) => {
+    const title = rule ? truncate(rule.title, 24) : `ルール${q.ruleN}`;
+    const a = q.opts[0].replace(/^A\. /,'');
+    const b = q.opts[1].replace(/^B\. /,'');
+    return truncate(
+      `🃏 TDAポーカークイズ\n「${title}」について、正しい説明はどれ？\n\nA. ${a}\nB. ${b}\n\n答えはこちらで確認👇\nhttps://webprojectxx.github.io/TDA/`,
+      280);
+  },
+  (q, rule) => {
+    const title = rule ? truncate(rule.title, 26) : `ルール${q.ruleN}`;
+    return truncate(
+      `♠️ ポーカールール、知ってる？\nルール${q.ruleN}「${title}」\n\nトーナメントで実際に使われるTDAの裁定ルールだよ。正解はこちらで確認できます！\nhttps://webprojectxx.github.io/TDA/`,
+      280);
+  },
+  (q, rule) => {
+    const title = rule ? truncate(rule.title, 20) : `ルール${q.ruleN}`;
+    return truncate(
+      `【TDAクイズ】ルール${q.ruleN}「${title}」\n\nこのルール正しく答えられる？クイズに挑戦してみて！答え合わせもできるよ🎯\nhttps://webprojectxx.github.io/TDA/`,
+      280);
+  },
 ];
 
 function generatePostText(q) {
