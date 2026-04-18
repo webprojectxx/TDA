@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TDA Poker Ruling App 2024</title>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --bg2: #ede8de;
+      --white: #ffffff;
+      --black: #1a1a1a;
+      --brown: #7a6348;
+      --brown-light: #a08060;
+      --beige-dark: #d4c8b0;
+      --beige-mid: #e8e0d0;
+      --shadow: rgba(26,26,26,0.10);
+      --shadow-md: rgba(26,26,26,0.18);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--black); min-height: 100vh; }
+
+    /* ===== NAV ===== */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(26,26,26,0.95); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 60px;
+    }
+    .nav-logo { color: var(--white); font-size: 18px; font-weight: 700; letter-spacing: 0.05em; }
+    .nav-logo span { color: var(--beige-dark); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: #ccc; text-decoration: none; font-size: 13px; letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative; height: 380px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-img {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1541278107931-e006523892df?w=1920&q=80&auto=format&fit=crop') center/cover no-repeat;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(26,26,26,0.78) 0%, rgba(90,70,50,0.60) 100%);
+    }
+    .hero-content { position: relative; text-align: center; padding: 0 20px; }
+    .hero-badge {
+      display: inline-block; background: var(--beige-dark); color: var(--black);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+    }
+    .hero h1 { color: var(--white); font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+    .hero h1 span { color: var(--beige-dark); }
+    .hero p { color: #e0d8cc; font-size: 15px; margin-top: 14px; letter-spacing: 0.03em; }
+    .hero-stats { display: flex; gap: 32px; justify-content: center; margin-top: 28px; }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { color: var(--beige-dark); font-size: 26px; font-weight: 800; }
+    .hero-stat .label { color: #ccc; font-size: 11px; letter-spacing: 0.08em; }
+
+    /* ===== MAIN LAYOUT ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ===== SEARCH ===== */
+    .search-section { background: var(--white); border-bottom: 1px solid var(--beige-dark); padding: 20px 0; }
+    .search-wrap { display: flex; gap: 12px; align-items: center; }
+    .search-box {
+      flex: 1; position: relative;
+    }
+    .search-box input {
+      width: 100%; padding: 12px 16px 12px 44px;
+      border: 1.5px solid var(--beige-dark); border-radius: var(--radius);
+      font-size: 14px; background: var(--bg); color: var(--black);
+      outline: none; transition: border-color 0.2s;
+    }
+    .search-box input:focus { border-color: var(--brown); }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--brown-light); font-size: 18px; pointer-events: none;
+    }
+    .search-clear {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--brown-light); cursor: pointer;
+      font-size: 18px; display: none; padding: 0;
+    }
+    .btn-quiz-open {
+      background: var(--black); color: var(--white);
+      border: none; border-radius: var(--radius); padding: 12px 22px;
+      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      letter-spacing: 0.05em; transition: background 0.2s;
+    }
+    .btn-quiz-open:hover { background: var(--brown); }
+
+    /* ===== CATEGORY TABS ===== */
+    .cats-section { background: var(--white); border-bottom: 1px solid var(--beige-dark); }
+    .cats-scroll { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 0; }
+    .cat-tab {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: 30px; border: 1.5px solid var(--beige-dark);
+      background: var(--bg); color: var(--brown); font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .cat-tab:hover { border-color: var(--brown); background: var(--beige-mid); }
+    .cat-tab.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    .cat-tab .icon { font-size: 16px; }
+    .cat-tab .count {
+      background: rgba(255,255,255,0.2); border-radius: 10px;
+      font-size: 11px; padding: 1px 6px; margin-left: 2px;
+    }
+    .cat-tab:not(.active) .count { background: var(--beige-dark); color: var(--black); }
+
+    /* ===== RULES GRID ===== */
+    .rules-section { padding: 32px 0 60px; }
+    .rules-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+    .rules-header h2 { font-size: 22px; font-weight: 800; }
+    .rules-count { color: var(--brown-light); font-size: 14px; }
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .rule-card {
+      background: var(--white); border-radius: var(--radius);
+      border: 1.5px solid var(--beige-mid);
+      padding: 20px; cursor: pointer;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .rule-card:hover { border-color: var(--brown-light); box-shadow: 0 4px 20px var(--shadow-md); transform: translateY(-2px); }
+    .rule-card-top { display: flex; align-items: flex-start; gap: 12px; }
+    .rule-num {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px;
+      background: var(--black); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+    }
+    .rule-info { flex: 1; min-width: 0; }
+    .rule-cat-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--brown); background: var(--beige-mid); border-radius: 4px;
+      padding: 2px 7px; margin-bottom: 5px;
+    }
+    .rule-title { font-size: 14px; font-weight: 700; line-height: 1.3; }
+    .rule-excerpt {
+      font-size: 12px; color: #666; line-height: 1.6; margin-top: 10px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .rule-card-footer { display: flex; justify-content: flex-end; margin-top: 12px; }
+    .rule-arrow { color: var(--brown-light); font-size: 16px; }
+    .no-results { text-align: center; padding: 60px 20px; color: var(--brown-light); }
+    .no-results p { font-size: 16px; margin-top: 8px; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: 16px; max-width: 660px; width: 100%;
+      max-height: 85vh; overflow-y: auto; position: relative;
+      transform: translateY(20px); transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      position: sticky; top: 0; background: var(--white);
+      padding: 24px 24px 16px; border-bottom: 1px solid var(--beige-mid);
+      display: flex; align-items: flex-start; gap: 16px; z-index: 1;
+    }
+    .modal-num {
+      flex-shrink: 0; width: 52px; height: 52px; border-radius: 13px;
+      background: var(--black); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800;
+    }
+    .modal-head-info { flex: 1; }
+    .modal-cat { font-size: 11px; font-weight: 700; color: var(--brown); letter-spacing: 0.1em; margin-bottom: 4px; }
+    .modal-title { font-size: 20px; font-weight: 800; line-height: 1.2; }
+    .modal-close {
+      background: var(--bg2); border: none; border-radius: 50%; width: 34px; height: 34px;
+      cursor: pointer; font-size: 18px; color: var(--black); display: flex;
+      align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--beige-dark); }
+    .modal-body { padding: 24px; }
+    .modal-body p { font-size: 14px; line-height: 1.8; color: #333; }
+    .modal-key {
+      background: var(--bg); border-left: 3px solid var(--brown);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 16px; margin: 16px 0; font-size: 13px; line-height: 1.7; color: var(--black);
+      font-weight: 600;
+    }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .modal-tag {
+      background: var(--bg2); color: var(--brown); border-radius: 20px;
+      padding: 4px 12px; font-size: 11px; font-weight: 600;
+    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--beige-mid); }
+    .btn-secondary {
+      flex: 1; padding: 10px; border: 1.5px solid var(--beige-dark);
+      background: var(--white); color: var(--black); border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--brown); }
+    .btn-primary {
+      flex: 1; padding: 10px; border: none;
+      background: var(--black); color: var(--white); border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--brown); }
+
+    /* ===== QUIZ SECTION ===== */
+    .quiz-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.60); z-index: 300;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .quiz-overlay.open { opacity: 1; pointer-events: all; }
+    .quiz-modal {
+      background: var(--white); border-radius: 16px; max-width: 700px; width: 100%;
+      max-height: 88vh; overflow-y: auto;
+      transform: translateY(20px); transition: transform 0.25s;
+    }
+    .quiz-overlay.open .quiz-modal { transform: translateY(0); }
+    .quiz-header {
+      background: var(--black); padding: 28px;
+      border-radius: 16px 16px 0 0;
+    }
+    .quiz-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .quiz-badge { background: var(--beige-dark); color: var(--black); font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 20px; letter-spacing: 0.1em; }
+    .quiz-close { background: rgba(255,255,255,0.15); border: none; color: var(--white); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    .quiz-header h2 { color: var(--white); font-size: 22px; font-weight: 800; }
+    .quiz-header p { color: #aaa; font-size: 13px; margin-top: 6px; }
+    .quiz-body { padding: 28px; }
+    .quiz-card {
+      background: var(--bg); border-radius: var(--radius); padding: 24px;
+      border: 1.5px solid var(--beige-mid); margin-bottom: 20px;
+    }
+    .quiz-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .quiz-rule-badge { background: var(--black); color: var(--white); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 6px; }
+    .quiz-cat-label { color: var(--brown-light); font-size: 12px; font-weight: 600; }
+    .quiz-question { font-size: 16px; font-weight: 700; line-height: 1.5; margin-bottom: 18px; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quiz-option {
+      padding: 10px 14px; border: 1.5px solid var(--beige-dark); border-radius: var(--radius-sm);
+      background: var(--white); font-size: 13px; cursor: pointer; text-align: left;
+      transition: all 0.2s; display: flex; align-items: flex-start; gap: 8px;
+    }
+    .quiz-option:hover { border-color: var(--brown); background: var(--beige-mid); }
+    .quiz-option.correct { border-color: #2d6a4f; background: #d8f3dc; }
+    .quiz-option.wrong { border-color: #c1121f; background: #ffe0e0; }
+    .quiz-option .opt-label { font-weight: 800; color: var(--brown); flex-shrink: 0; margin-right: 6px; }
+    .quiz-option .opt-text { flex: 1; line-height: 1.5; }
+    .quiz-answer-box {
+      background: var(--beige-mid); border-radius: var(--radius-sm); padding: 14px 16px;
+      font-size: 13px; line-height: 1.7; margin-top: 14px; display: none;
+      border-left: 3px solid var(--brown);
+    }
+    .quiz-answer-box.show { display: block; }
+    .quiz-answer-box strong { color: var(--black); }
+    .quiz-post-box {
+      background: var(--black); border-radius: var(--radius); padding: 20px;
+      margin-top: 4px;
+    }
+    .quiz-post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .quiz-post-icon { font-size: 22px; }
+    .quiz-post-title { color: var(--white); font-size: 15px; font-weight: 700; }
+    .quiz-post-text {
+      background: #111; border-radius: var(--radius-sm); padding: 16px;
+      color: #e0e0e0; font-size: 13px; line-height: 1.8; white-space: pre-wrap;
+      font-family: monospace; border: 1px solid #333; min-height: 120px;
+    }
+    .quiz-post-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .btn-copy {
+      flex: 1; padding: 10px; background: var(--brown); color: var(--white);
+      border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-copy:hover { background: var(--brown-light); }
+    .btn-copy.copied { background: #2d6a4f; }
+    .btn-regen {
+      padding: 10px 18px; background: transparent; color: var(--white);
+      border: 1.5px solid #555; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-regen:hover { border-color: var(--beige-dark); }
+    .quiz-controls { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-new-quiz {
+      flex: 1; padding: 13px; background: var(--black); color: var(--white);
+      border: none; border-radius: var(--radius); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s; letter-spacing: 0.03em;
+    }
+    .btn-new-quiz:hover { background: var(--brown); }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 500;
+      background: var(--black); color: var(--white);
+      padding: 12px 20px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600;
+      transform: translateY(60px); opacity: 0; transition: all 0.3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--black); color: #888; text-align: center;
+      padding: 28px; font-size: 12px; line-height: 1.8;
+    }
+    footer a { color: var(--beige-dark); text-decoration: none; }
+
+    /* ===== RESPONSIVE ===== */
+    /* ===== QUIZ PROGRESS ===== */
+    .quiz-progress {
+      margin-left: auto; font-size: 11px; color: #888;
+      background: #222; border-radius: 10px; padding: 2px 8px;
+    }
+
+    /* ===== MOBILE BASE (≤768px) ===== */
+    @media (max-width: 768px) {
+      /* Nav */
+      nav { padding: 0 14px; height: 52px; }
+      .nav-logo { font-size: 15px; }
+      .nav-links a { font-size: 12px; }
+      .nav-links { gap: 12px; }
+
+      /* Hero */
+      .hero { height: 260px; }
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 13px; }
+      .hero-stats { gap: 18px; margin-top: 20px; }
+      .hero-stat .num { font-size: 22px; }
+      .hero-stat .label { font-size: 10px; }
+      .hero-badge { font-size: 10px; margin-bottom: 12px; }
+
+      /* Search */
+      .search-wrap { flex-wrap: wrap; gap: 8px; }
+      .search-box { width: 100%; }
+      .btn-quiz-open { width: 100%; text-align: center; padding: 11px; }
+
+      /* Category tabs */
+      .cat-tab { padding: 7px 12px; font-size: 12px; }
+
+      /* Rules */
+      .rules-grid { grid-template-columns: 1fr; gap: 12px; }
+      .rules-section { padding: 20px 0 40px; }
+      .rules-header h2 { font-size: 18px; }
+
+      /* Rule modal – full screen */
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal {
+        border-radius: 16px 16px 0 0; max-height: 92vh;
+        width: 100%;
+      }
+      .modal-header { padding: 18px 16px 14px; }
+      .modal-num { width: 44px; height: 44px; font-size: 14px; }
+      .modal-title { font-size: 16px; }
+      .modal-body { padding: 16px; }
+      .modal-body p { font-size: 13px; }
+      .modal-actions { flex-direction: column; gap: 8px; }
+      .modal-actions button { width: 100%; padding: 12px; font-size: 13px; }
+
+      /* Quiz modal – full screen */
+      .quiz-overlay { padding: 0; align-items: flex-end; }
+      .quiz-modal {
+        border-radius: 16px 16px 0 0; max-height: 95vh;
+        width: 100%;
+      }
+      .quiz-header { padding: 20px 16px 16px; }
+      .quiz-header h2 { font-size: 18px; }
+      .quiz-body { padding: 16px; }
+      .quiz-options { grid-template-columns: 1fr; gap: 8px; }
+      .quiz-option { padding: 12px 14px; font-size: 13px; min-height: 48px; }
+      .quiz-question { font-size: 14px; }
+      .quiz-post-box { padding: 16px; }
+      .quiz-post-text { font-size: 12px; min-height: 100px; }
+      .quiz-post-actions { flex-direction: column; gap: 8px; }
+      .quiz-post-actions button { width: 100%; padding: 12px; }
+      .btn-new-quiz { padding: 14px; font-size: 14px; }
+      .quiz-controls { margin-top: 16px; }
+      .quiz-card { padding: 16px; }
+      .quiz-card-top { flex-wrap: wrap; gap: 6px; }
+      .quiz-progress { font-size: 10px; }
+
+      /* Toast */
+      .toast { right: 12px; bottom: 16px; font-size: 12px; }
+
+      /* Footer */
+      footer { padding: 20px 16px; font-size: 11px; }
+    }
+
+    /* ===== SMALL PHONES (≤400px) ===== */
+    @media (max-width: 400px) {
+      .hero { height: 220px; }
+      .hero h1 { font-size: 22px; }
+      .hero-stats { gap: 12px; }
+      .hero-stat .num { font-size: 20px; }
+      .nav-links { display: none; }
+      .nav-logo { font-size: 16px; }
+      .cat-tab { font-size: 11px; padding: 6px 10px; }
+    }
+
+    /* ===== GLOSSARY OVERLAY ===== */
+    .glossary-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      align-items: flex-start; justify-content: center;
+      overflow-y: auto; padding: 20px 12px;
+    }
+    .glossary-overlay.open { display: flex; }
+    .glossary-panel {
+      background: var(--white); border-radius: var(--radius);
+      width: 100%; max-width: 800px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; min-height: 80vh;
+      margin: auto;
+    }
+    .glossary-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px; border-bottom: 1px solid var(--beige-dark);
+      background: var(--black); border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .glossary-header h2 { color: var(--white); font-size: 18px; font-weight: 700; }
+    .glossary-header h2 span { color: var(--beige-dark); font-size: 13px; font-weight: 400; margin-left: 10px; }
+    .glossary-close {
+      background: none; border: none; color: #aaa; font-size: 26px; cursor: pointer;
+      line-height: 1; padding: 0 4px; transition: color 0.2s;
+    }
+    .glossary-close:hover { color: var(--white); }
+    .glossary-search-wrap {
+      padding: 14px 24px 10px; border-bottom: 1px solid var(--beige-mid);
+    }
+    .glossary-search-wrap input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font);
+      background: var(--bg); outline: none; transition: border-color 0.2s;
+    }
+    .glossary-search-wrap input:focus { border-color: var(--brown); }
+    .glossary-alpha {
+      padding: 10px 24px; border-bottom: 1px solid var(--beige-mid);
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .alpha-btn {
+      min-width: 30px; height: 30px; padding: 0 6px;
+      border: 1.5px solid var(--beige-dark); border-radius: 6px;
+      background: var(--white); color: var(--black); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .alpha-btn:hover { background: var(--beige-mid); }
+    .alpha-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    .alpha-btn.disabled { opacity: 0.25; pointer-events: none; }
+    .glossary-body { padding: 20px 24px; flex: 1; }
+    .glossary-letter-section { margin-bottom: 28px; }
+    .glossary-letter-heading {
+      font-size: 20px; font-weight: 800; color: var(--brown);
+      border-left: 4px solid var(--brown); padding-left: 10px;
+      margin-bottom: 12px;
+    }
+    .glossary-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
+    }
+    .glossary-card {
+      background: var(--bg); border: 1px solid var(--beige-dark);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      cursor: pointer; transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .glossary-card:hover { box-shadow: 0 4px 14px var(--shadow-md); transform: translateY(-1px); }
+    .glossary-term { font-size: 14px; font-weight: 700; color: var(--black); }
+    .glossary-read { font-size: 11px; color: var(--brown-light); margin: 2px 0 4px; }
+    .glossary-def { font-size: 12px; color: #555; line-height: 1.5; }
+    .glossary-tag {
+      display: inline-block; font-size: 10px; background: var(--beige-mid);
+      color: var(--brown); border-radius: 4px; padding: 1px 6px; margin-top: 5px;
+    }
+    .glossary-count { font-size: 12px; color: #888; margin-bottom: 14px; }
+    /* Glossary term detail modal */
+    .glossary-detail-overlay {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 20px;
+    }
+    .glossary-detail-overlay.open { display: flex; }
+    .glossary-detail-panel {
+      background: var(--white); border-radius: var(--radius);
+      max-width: 520px; width: 100%; padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .glossary-detail-panel h3 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .glossary-detail-panel .read { color: var(--brown-light); font-size: 13px; margin-bottom: 12px; }
+    .glossary-detail-panel .def-full { font-size: 14px; line-height: 1.8; color: #333; }
+    .glossary-detail-panel .related { margin-top: 14px; font-size: 12px; color: var(--brown); }
+    .glossary-detail-close {
+      float: right; background: var(--bg); border: none; border-radius: 50%;
+      width: 32px; height: 32px; font-size: 18px; cursor: pointer; line-height: 32px; text-align: center;
+    }
+    /* Glossary responsive */
+    @media (max-width: 768px) {
+      .glossary-panel { border-radius: 16px 16px 0 0; min-height: 90vh; margin-top: auto; }
+      .glossary-overlay { padding: 0; align-items: flex-end; }
+      .glossary-header { border-radius: 16px 16px 0 0; }
+      .glossary-header h2 { font-size: 16px; }
+      .glossary-body { padding: 16px; }
+      .glossary-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+      .glossary-search-wrap { padding: 10px 16px; }
+      .glossary-alpha { padding: 8px 16px; }
+      .alpha-btn { min-width: 26px; height: 26px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">TDA <span>Ruling App</span></div>
+  <div class="nav-links">
+    <a href="#rules">ルール一覧</a>
+    <a href="#" onclick="openQuiz(); return false;">クイズ生成</a>
+    <a href="#" onclick="openGlossary(); return false;">用語集</a>
+    <a href="https://japanopenpoker.com/rule/pokertda2024v1/" target="_blank">公式ルール</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-img"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">POKER TDA 2024 v1.0</div>
+    <h1>TDA <span>Ruling</span> App</h1>
+    <p>トーナメントディレクター向け。全71条のルールを素早く参照・裁定。</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">71</div><div class="label">RULES</div></div>
+      <div class="hero-stat"><div class="num">7</div><div class="label">CATEGORIES</div></div>
+      <div class="hero-stat"><div class="num">107</div><div class="label">QUIZ</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<section class="search-section" id="rules">
+  <div class="container">
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="ルール番号・キーワードで検索（例: ミスディール、ベット、ペナルティ）">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      </div>
+      <button class="btn-quiz-open" onclick="openQuiz()">🎯 クイズ生成</button>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="cats-section">
+  <div class="container">
+    <div class="cats-scroll" id="catTabs"></div>
+  </div>
+</section>
+
+<!-- RULES GRID -->
+<section class="rules-section">
+  <div class="container">
+    <div class="rules-header">
+      <h2 id="sectionTitle">全ルール</h2>
+      <span class="rules-count" id="rulesCount"></span>
+    </div>
+    <div class="rules-grid" id="rulesGrid"></div>
+    <div class="no-results" id="noResults" style="display:none">
+      <div style="font-size:40px">🔎</div>
+      <p>該当するルールが見つかりませんでした</p>
+    </div>
+  </div>
+</section>
+
+<!-- RULE MODAL -->
+<div class="modal-overlay" id="ruleModal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <div class="modal-header">
+      <div class="modal-num" id="mNum"></div>
+      <div class="modal-head-info">
+        <div class="modal-cat" id="mCat"></div>
+        <div class="modal-title" id="mTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeRuleModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="mBody"></p>
+      <div class="modal-key" id="mKey" style="display:none"></div>
+      <div class="modal-tags" id="mTags"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="mPrev" onclick="navModal(-1)">← 前のルール</button>
+        <button class="btn-secondary" onclick="closeRuleModal()">閉じる</button>
+        <button class="btn-secondary" id="mNext" onclick="navModal(1)">次のルール →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="quiz-overlay" id="quizOverlay" onclick="closeQuizOverlay(event)">
+  <div class="quiz-modal">
+    <div class="quiz-header">
+      <div class="quiz-header-top">
+        <span class="quiz-badge">TDA QUIZ GENERATOR</span>
+        <button class="quiz-close" onclick="closeQuiz()">✕</button>
+      </div>
+      <h2>TDA クイズ生成</h2>
+      <p>X（旧Twitter）ポーカーアカウント向けのクイズ投稿を自動生成します</p>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-card" id="quizCard">
+        <div class="quiz-card-top">
+          <span class="quiz-rule-badge" id="qRuleBadge"></span>
+          <span class="quiz-cat-label" id="qCatLabel"></span>
+          <span class="quiz-progress" id="quizProgress"></span>
+        </div>
+        <div class="quiz-question" id="qQuestion"></div>
+        <div class="quiz-options" id="qOptions"></div>
+        <div class="quiz-answer-box" id="qAnswerBox"></div>
+      </div>
+      <div class="quiz-post-box">
+        <div class="quiz-post-header">
+          <span class="quiz-post-icon">𝕏</span>
+          <span class="quiz-post-title">X ポスト用テキスト</span>
+        </div>
+        <div class="quiz-post-text" id="qPostText"></div>
+        <div class="quiz-post-actions">
+          <button class="btn-copy" id="copyBtn" onclick="copyPost()">📋 コピー</button>
+          <button class="btn-regen" onclick="regenPost()">↺ 別パターン</button>
+        </div>
+      </div>
+      <div class="quiz-controls">
+        <button class="btn-new-quiz" onclick="generateQuiz()">次のクイズを生成 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- GLOSSARY OVERLAY -->
+<div class="glossary-overlay" id="glossaryOverlay" onclick="glossaryOverlayClick(event)">
+  <div class="glossary-panel" id="glossaryPanel">
+    <div class="glossary-header">
+      <h2>ポーカー用語集 <span>Poker Glossary A–Z</span></h2>
+      <button class="glossary-close" onclick="closeGlossary()">&#x2715;</button>
+    </div>
+    <div class="glossary-search-wrap">
+      <input type="text" id="glossarySearch" placeholder="🔍 用語を検索 (例: bluff, オールイン, raise…)" oninput="onGlossarySearch(this.value)">
+    </div>
+    <div class="glossary-alpha" id="glossaryAlpha"></div>
+    <div class="glossary-body">
+      <div class="glossary-count" id="glossaryCount"></div>
+      <div id="glossaryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GLOSSARY TERM DETAIL -->
+<div class="glossary-detail-overlay" id="glossaryDetailOverlay" onclick="if(event.target===this)closeGlossaryDetail()">
+  <div class="glossary-detail-panel" id="glossaryDetailPanel">
+    <button class="glossary-detail-close" onclick="closeGlossaryDetail()">&#x2715;</button>
+    <h3 id="gdTerm"></h3>
+    <div class="read" id="gdRead"></div>
+    <div class="def-full" id="gdDef"></div>
+    <div class="related" id="gdRelated"></div>
+  </div>
+</div>
+
+<footer>
+  <div>TDA Poker Ruling App 2024 &nbsp;|&nbsp; Based on <a href="https://japanopenpoker.com/rule/pokertda2024v1/" target="_blank">Poker TDA Rules 2024 v1.0</a></div>
+  <div style="margin-top:8px; color:#bbb;">TDA rules used by permission of the Poker TDA, Copyright 2024, <a href="https://www.pokertda.com" target="_blank">www.pokertda.com</a>, All rights reserved.</div>
+  <div style="margin-top:6px">このアプリはTDA公式ルールに基づいています。最終裁定は常にフロアの判断が優先されます。</div>
+</footer>
+
+<script>
+// ===== DATA =====
+const CATEGORIES = [
+  { id: 'all',    icon: '📋', label: 'すべて' },
+  { id: 'gen',    icon: '⚖️', label: '一般概念',          color: '#5c6bc0' },
+  { id: 'seat',   icon: '🪑', label: 'シーティング',      color: '#43a047' },
+  { id: 'pot',    icon: '🏆', label: 'ポット・ショーダウン', color: '#fb8c00' },
+  { id: 'proc',   icon: '⚙️', label: '一般手続',          color: '#00838f' },
+  { id: 'deal',   icon: '🃏', label: 'ボタン・ブラインド・ディール', color: '#8d6e63' },
+  { id: 'bet',    icon: '💰', label: 'ベッティング',       color: '#c62828' },
+  { id: 'eth',    icon: '🚨', label: 'エチケット・ペナルティ', color: '#4a148c' },
+  { id: 'rp',     icon: '📋', label: '推奨手順',              color: '#1b6ca8' },
+  { id: 'ex',     icon: '🔍', label: '追補例解',              color: '#6a0572' },
+];
+
+const RULES = [
+  // 一般概念
+  { n:1,  cat:'gen',  title:'フロアの最終決定権',
+    body:'フロアはゲームの最善の利益と公平性に基づいて裁定を行います。異常な状況では、技術的なルールよりも公平性を考慮した常識的な判断が優先される場合があります。プレイヤーはフロアの裁定に従う義務があります。',
+    key:'フロアの判断は最終的なものです。常識に基づく公平な裁定が技術的なルールより優先されることがあります。',
+    tags:['フロア','裁定','最終決定'] },
+
+  { n:2,  cat:'gen',  title:'プレイヤーの責務',
+    body:'プレイヤーは多岐にわたる責務を負います：登録・着席の確認、正しいカード配布の確認、ハンドの保護、意図の明確な伝達、アクション順序の遵守、適切なチップスタッキング、ライブハンド中の着席維持、ショーダウンでの適切なカード公開、エラーの指摘、遅延なくプレイ、必要に応じたクロック要求、速やかなテーブル移動、ワンプレイヤーワンハンドの原則遵守、ルールの理解と遵守、エチケットの維持、差別的行為の報告、秩序あるイベントへの貢献。',
+    key:'プレイヤーはハンドを保護し、意図を明確に示し、ルールに従う責任があります。',
+    tags:['プレイヤー責任','ハンド保護','エチケット'] },
+
+  { n:3,  cat:'gen',  title:'公式用語とジェスチャー',
+    body:'公式ベッティング用語は、シンプルで明確で歴史的に確立されたものです：ベット、レイズ、コール、フォールド、チェック、オールイン、コンプリート、ポット（ポットリミットのみ）。テーブルタップ（指でたたく）はチェックを意味します。非公式な用語の使用はリスクがあり、最高合理的な金額に解釈される場合があります。',
+    key:'テーブルタップ＝チェック。公式用語（ベット・レイズ・コール・フォールド・チェック・オールイン）を使用すること。',
+    tags:['公式用語','ジェスチャー','チェック','ベット'] },
+
+  { n:4,  cat:'gen',  title:'身元確認要件',
+    body:'プレイヤーは明確に識別可能でなければなりません。スタッフはサングラス、フード、または顔を覆うアイテムの取り外しを要求することができます。身元確認はトーナメントの公正性を維持するために必要です。',
+    key:'スタッフはサングラスやフードの取り外しを要求できます。',
+    tags:['身元確認','サングラス','フード'] },
+
+  { n:5,  cat:'gen',  title:'電子機器・通信制限',
+    body:'テーブルでの電話通話は禁止されています。デバイスはサイレントにし非干渉的でなければなりません。デバイスはテーブルの上に置かないこと。ライブハンドを持つプレイヤーは電子機器を使用できません。ベッティングアプリおよびストラテジーツールは禁止されています。',
+    key:'ライブハンド中は電子機器の使用禁止。ベッティングアプリ・戦略ツールも禁止。',
+    tags:['電子機器','スマホ','通信','ベッティングアプリ'] },
+
+  { n:6,  cat:'gen',  title:'公式言語',
+    body:'ハウスはテーブル言語ポリシーを明確に掲示・告知しなければなりません。公式言語以外での会話はペナルティの対象となる場合があります。',
+    key:'テーブルの公式言語ポリシーをハウスは明確に掲示・告知すること。',
+    tags:['言語','公式言語','ポリシー'] },
+
+  // シーティング
+  { n:7,  cat:'seat', title:'ランダム・正確な着席',
+    body:'トーナメントはランダムな着席を使用します。誤った席に着いたプレイヤーはフルチップスタックを持ったまま正しい席に移動されます。着席の正確さはトーナメントの公正性に不可欠です。',
+    key:'誤席のプレイヤーはフルスタックで正しい席に移動します。',
+    tags:['着席','ランダム','ミスシート'] },
+
+  { n:8,  cat:'seat', title:'オルタネイト・遅刻登録・リエントリー',
+    body:'オルタネイト、遅刻登録、リエントリープレイヤーはフルスタックを受け取ります。SBからボタンのギャップを避けてランダムに着席されます。',
+    key:'遅刻登録・リエントリーはフルスタックで参加。SB-ボタン間のギャップ回避。',
+    tags:['遅刻登録','リエントリー','オルタネイト'] },
+
+  { n:9,  cat:'seat', title:'特別配慮',
+    body:'特別なサポートが必要なプレイヤーに対して合理的な配慮が提供されます。ハウスは可能な限りプレイヤーのニーズに対応する努力をします。',
+    key:'特別な支援が必要なプレイヤーへの合理的な配慮を提供します。',
+    tags:['特別配慮','アクセシビリティ'] },
+
+  { n:10, cat:'seat', title:'新規プレイヤーとブローク・テーブルプレイヤー',
+    body:'新規プレイヤーとブロークテーブルからの移動プレイヤーは、SBからボタンのギャップを除くどのポジションにも着席できます。ブロークテーブルからの移動には多段階のランダムプロセスが使用されます。',
+    key:'ブロークテーブルからの移動プレイヤーはSB-ボタン間以外のどのポジションにも着席可能。',
+    tags:['ブロークテーブル','新規プレイヤー','テーブル移動'] },
+
+  { n:11, cat:'seat', title:'テーブルバランシングとプレイ中断',
+    body:'テーブルバランスのために移動されたプレイヤーは最も不利なポジション（通常はBBの前）に配置されます。フロップゲームでは移動プレイヤーは該当する場合シングルBBとなります。ミックスゲームでのゲーム変更はボタン調整が必要です。最大テーブルより3人以上少ないテーブルは、ブラインドがアクションに影響する場合にプレイを中断します（特別フォーマットを除く）。',
+    key:'移動プレイヤーは最も不利なポジション（通常BBの前）に着席。最大テーブルより3人以上少ない場合はプレイ中断。',
+    tags:['テーブルバランス','プレイ中断','移動'] },
+
+  // ポット・ショーダウン
+  { n:12, cat:'pot',  title:'カードスピーク',
+    body:'カードスピーク（カードが語る）が勝者を決定します。口頭での宣言は拘束力がありませんが、意図的な虚偽宣言はペナルティの対象となります。ディーラーはハンドの強さを読み上げます。プレイヤーはハンドを正確に宣言する責任がありますが、ミスリードにより不正な利益を得ようとすることは禁止されています。',
+    key:'カードの実際の強さが勝者を決定します（カードスピーク）。虚偽宣言はペナルティ対象。',
+    tags:['カードスピーク','ショーダウン','宣言'] },
+
+  { n:13, cat:'pot',  title:'カード公開と勝利ハンドのキル禁止',
+    body:'すべてのカードは表向きで明確に読める状態でなければなりません。プレイヤーはすべてのカードが読まれるまでハンドを保持します。不完全な公開はポットの権利を失うリスクがあります。ディーラーは明らかに勝利しているハンドをキルすることができません。',
+    key:'明らかな勝利ハンドをディーラーはキルできない。全カードが読まれるまでハンドを保持すること。',
+    tags:['カード公開','ハンドキル','ショーダウン'] },
+
+  { n:14, cat:'pot',  title:'ショーダウンでのライブカード',
+    body:'裏向きで捨てられた未公開のカードは、カードが識別不能になるかマックに集められるまで自動的にキルされません。プレイヤーはショーダウン時に適切にカードを公開する責任があります。',
+    key:'裏向きに捨てられたカードはマックに集められるまでキルされない。',
+    tags:['ライブカード','マック','ショーダウン'] },
+
+  { n:15, cat:'pot',  title:'ショーダウンでのカード公開違反',
+    body:'必要なカードのうち1枚だけを見せた場合、もう1枚の公開が必要となります。ベッターが相手のカードを見る前に捨てた場合、フロアがカードを保持してチップ回収の権利を管理します。',
+    key:'1枚だけ見せた場合は全カードの公開が必要。ベッターが先にフォールドした場合、カラーの権利が保護されます。',
+    tags:['カード公開','ショーダウン','フォールド'] },
+
+  { n:16, cat:'pot',  title:'オールイン時の公開義務',
+    body:'オールインプレイヤーのベッティングが完了した時点で、すべてのハンドは遅延なく公開されます。すべてのベッティング参加者のカードが公開されなければなりません。これはポットの公正な決定を確保するためです。',
+    key:'オールイン完了後、全参加プレイヤーのハンドは即座に公開される義務があります。',
+    tags:['オールイン','カード公開','ショーダウン'] },
+
+  { n:17, cat:'pot',  title:'オールインなし時のショーダウン順序',
+    body:'オールインなしの場合、TDがショーダウン順序を指示します。最終ストリートでの最後のアグレッサーが最初に公開します。他の全員が裏向きでフォールドした場合、残った1人のプレイヤーが未公開のままポットを獲得できます。',
+    key:'最後のアグレッサーが最初にカードを公開。全員フォールドなら勝者はカードを見せなくていい。',
+    tags:['ショーダウン順序','アグレッサー','フォールド'] },
+
+  { n:18, cat:'pot',  title:'ハンド公開の要求',
+    body:'フォールドしたプレイヤーは他のプレイヤーのハンドを見たり要求したりすることはできません。リバーでベットしたプレイヤーに対してコールしたプレイヤーは、「支払いをして見る」権利の絶対的な権利があります。',
+    key:'フォールドしたプレイヤーはハンドを見る権利なし。コーラーはベッターのハンドを見る絶対的権利あり。',
+    tags:['ハンド公開','権利','コール'] },
+
+  { n:19, cat:'pot',  title:'ボードプレイ',
+    body:'ボードプレイ（コミュニティカードのみ使用）にはすべてのホールカードを公開し、ポット部分を獲得することが必要です。プレイヤーはボードプレイを宣言する前にホールカードを公開する義務があります。',
+    key:'ボードプレイ宣言にはすべてのホールカード公開が必要。',
+    tags:['ボードプレイ','ホールカード','公開'] },
+
+  { n:20, cat:'pot',  title:'端数チップの分配',
+    body:'最小デノミネーションを分割します。ボードゲーム：余分なチップはボタンの左隣へ。スタッドゲーム：最強の5枚カードハイへ。ハイ/ロー：ハイハンドへ。スプリットポットでの端数チップの処理です。',
+    key:'端数チップはボードゲームではボタン左隣、スタッドでは最強ハイ、ハイ/ローではハイハンドへ。',
+    tags:['端数チップ','スプリット','ポット分配'] },
+
+  { n:21, cat:'pot',  title:'サイドポット',
+    body:'サイドポットは個別に分配されます。メインポットとサイドポットは別々に計算・分配される必要があります。複数のオールインが存在する場合、適切な順序でポットを計算します。',
+    key:'サイドポットはメインポットとは別に個別分配。',
+    tags:['サイドポット','オールイン','ポット計算'] },
+
+  { n:22, cat:'pot',  title:'ハンドとポットへの異議',
+    body:'ハンドに関する異議は次のハンドが始まるまでに申し立てなければなりません。ポットのエラーに関する異議は次のハンドのサブスタンシャルアクションまでに申し立てなければなりません。',
+    key:'ハンド異議：次のハンド開始まで。ポットエラー異議：次のハンドのサブスタンシャルアクションまで。',
+    tags:['異議','タイムリミット','ポットエラー'] },
+
+  // 一般手続
+  { n:23, cat:'proc', title:'新ハンドと新レベル',
+    body:'新しいレベルはフロアのアナウンスまたはクロックのゼロアラートから始まります。新レベルは次のハンドから適用されます。現在進行中のハンドは前のレベルのブラインドで完了します。',
+    key:'新レベルはアナウンス/クロックゼロから。現在のハンドは前レベルのブラインドで完了。',
+    tags:['新レベル','ブラインド','クロック'] },
+
+  { n:24, cat:'proc', title:'チップレースとカラーアップ',
+    body:'チップレースはシート1から開始し、プレイヤーごとに最大1枚のチップを配ります。プレイヤーはチップレースで脱落してはなりません。最低金額以下のチップを持つプレイヤーは1枚のチップを受け取ります。すべてのチップは公開状態でなければなりません。レース後の対象デノミネーションのチップは交換されます。不足チップは取り除かれます。',
+    key:'チップレースはシート1から。プレイヤーはレースで脱落しない。最低以下は1チップ保証。',
+    tags:['チップレース','カラーアップ','デノミネーション'] },
+
+  { n:25, cat:'proc', title:'カードとチップの管理',
+    body:'1スタックあたり20枚のチップが推奨されます。高デノミネーションのチップは見える位置に保ち、識別可能でなければなりません。TDは随時アナウンスしてカラーアップを行えます。ライブハンドは常に見える状態を維持してください。',
+    key:'高デノミチップは常に見える位置へ。1スタック20枚推奨。',
+    tags:['チップ管理','カード管理','可視性'] },
+
+  { n:26, cat:'proc', title:'デッキチェンジ',
+    body:'デッキはディーラーチェンジ時、レベルアップ時、またはハウス指定の時間に交換されます。プレイヤーはデッキチェンジを要求することはできません。',
+    key:'デッキ交換はディーラーチェンジ時、レベルアップ時等。プレイヤーからのリクエスト不可。',
+    tags:['デッキ','カード交換'] },
+
+  { n:27, cat:'proc', title:'リバイ',
+    body:'リバイの意思を示したプレイヤーは次のハンドの前にリバイしなければなりません。まるで後ろにチップがあるかのようにプレイします。',
+    key:'リバイ意思を示したら次のハンド前に必ずリバイすること。',
+    tags:['リバイ','チップ','再購入'] },
+
+  { n:28, cat:'proc', title:'ラビットハンティング',
+    body:'完了したハンドでの残りカードの確認（ラビットハンティング）は許可されていません。ハンドが終了した後に残りのデッキを確認することは認められません。',
+    key:'ハンド終了後に残りカードを見ること（ラビットハンティング）は禁止。',
+    tags:['ラビットハンティング','禁止'] },
+
+  { n:29, cat:'proc', title:'クロック要求',
+    body:'遅延なくプレイすること。TDはクロックを宣言するか、プレイヤーのリクエストを受け入れます。クロックをかけられたプレイヤーは25秒＋5秒カウントダウン以内にアクションしなければなりません。タイムアウト時：ベットに直面している場合はデッドハンド、そうでない場合はチェック。',
+    key:'クロック後は25秒+5秒カウントダウン。タイムアウト＝ベット直面中はデッドハンド、それ以外はチェック。',
+    tags:['クロック','タイムアウト','プレイ時間'] },
+
+  { n:30, cat:'proc', title:'着席とライブハンド',
+    body:'ライブハンドには最後のカードが配られた時点でテーブルにいる必要があります。不在プレイヤーのハンドはキルされ、ブラインド/アンティはポットに入ります。着席とは、椅子に届ける範囲内にいることを意味します。',
+    key:'最後のカードが配られた時点で席にいないとハンドがキルされます。',
+    tags:['着席','ライブハンド','不在'] },
+
+  { n:31, cat:'proc', title:'アクション中の席への留まり',
+    body:'ライブハンドのプレイヤーはすべてのベッティングラウンドとショーダウンを通じて留まらなければなりません。ハンド中に離席するとペナルティが科せられます。',
+    key:'ライブハンド中は全ベッティングラウンドとショーダウンを通じて着席が必要。離席はペナルティ対象。',
+    tags:['着席','ペナルティ','ライブハンド'] },
+
+  // ボタン・ブラインド・ディール
+  { n:32, cat:'deal', title:'デッドボタン',
+    body:'トーナメントはデッドボタン方式を採用します。デッドボタンでは、ボタンは正常な順序で移動し続け、SBとBBのポジションも正常に移動します。プレイヤーが不在の場合もボタンは通常通り進みます。',
+    key:'トーナメントはデッドボタン方式採用。ボタンは常に通常順序で移動。',
+    tags:['デッドボタン','ボタン','ブラインド'] },
+
+  { n:33, cat:'deal', title:'ブラインド回避',
+    body:'意図的なブラインド回避を行うプレイヤーはペナルティを受けます。プレイヤーはブラインドの支払いを避けるためにテーブルを離れたり、不正な行動を取ったりすることは許されません。',
+    key:'意図的なブラインド回避はペナルティ対象。',
+    tags:['ブラインド回避','ペナルティ'] },
+
+  { n:34, cat:'deal', title:'ボタンのポジションと移動',
+    body:'誤ったボタンの移動はサブスタンシャルアクションの前に訂正されます。サブスタンシャルアクション後は訂正できません。プレイヤーはボタンのポジションを確認する責任があります。ヘッズアップ：SB＝ボタン、フロップ後はラストアクション。',
+    key:'ボタンのミスはSAの前に訂正。SA後は訂正不可。ヘッズアップでSB=ボタン。',
+    tags:['ボタン','ヘッズアップ','サブスタンシャルアクション'] },
+
+  { n:35, cat:'deal', title:'ミスディールとフォールドデッキ',
+    body:'ミスディールとなる条件：最初の配りで2枚以上のカードが表向き/誤った席のカード/プレイ不可能なポジションのカード/誤ったカード枚数/SAの前に誤ったカード種類。ボタンとボタンのカードには連続して2枚のカードが配られる場合があります。再ディールは元の条件を維持します。SAの後はフォールドデッキ（重複カード）を除いてミスディールなし。フォールドデッキはプレイを停止し、ベットを返却します。',
+    key:'ミスディール条件：表向き2枚以上/誤席/誤枚数/SA前の誤カード種。SA後はフォールドデッキ以外ミスディールなし。',
+    tags:['ミスディール','フォールドデッキ','サブスタンシャルアクション'] },
+
+  { n:36, cat:'deal', title:'サブスタンシャルアクション（SA）',
+    body:'サブスタンシャルアクション（SA）とは：チップを使った2つの順序立ったアクション（2チェックまたは2フォールドを除く）、または3つの順序立ったアクションの組み合わせです。ブラインドのポスティングはSAとはなりません。',
+    key:'SA＝チップを使った順序ある2アクション（チェック×2、フォールド×2を除く）、または順序ある3アクション。ブラインドポストはSAに含まない。',
+    tags:['サブスタンシャルアクション','SA','定義'] },
+
+  { n:37, cat:'deal', title:'ボタンが少ないカードを受け取った場合',
+    body:'ボタンが少ないカードを受け取った場合は即座に報告してください。不足カードはSAの後でも、ゲームタイプが許可する場合は補完できます。ただし、ボタンが少ないカードのままチェックまたはベットでアクションした場合はデッドハンドとなります。',
+    key:'【重要】SA後でもゲームタイプが許可すれば補完可能。ボタンがチェック/ベットでアクション済みの場合のみデッドハンド。',
+    tags:['ボタン','枚数不足','ミスディール'] },
+
+  { n:38, cat:'deal', title:'SAの後のバーン',
+    body:'バーンはデッキを保護します。SAの後のミスディールは全カードをキルし、ランダムディーリングを適用します。その後のストリートでは各1枚バーンします。',
+    key:'SAの後のミスディール→全カードキル後ランダムディール。各ストリートで1枚バーン。',
+    tags:['バーン','サブスタンシャルアクション','ミスディール'] },
+
+  { n:39, cat:'deal', title:'不規則なフロップと早期カード',
+    body:'4枚フロップ：4枚を混ぜてTDがランダムに1枚バーン選択、3枚をフロップとする。バーンなし3枚フロップ：3枚を混ぜて1枚バーン選択、フロップ＝残り2枚＋デッキの次のカード（アクションなしの場合）。4番目のストリートは通常通りバーン。早期配布カードは手順5に従います。',
+    key:'4枚フロップ：4枚混ぜてランダム1枚バーン、3枚フロップ。バーンなし3枚：3枚混ぜて1枚バーン+デッキ次カード。',
+    tags:['フロップ','ミスディール','早期カード'] },
+
+  // ベッティング
+  { n:40, cat:'bet',  title:'ベット方法：声とチップ',
+    body:'声および/またはチップによってベットが決まります。先行したアクションが優先されます。同時の場合：明確な声の宣言が優先され、そうでなければチップが有効です。不明な場合はTDがルール1に基づいて判断します。',
+    key:'声が先かチップが先か、先行した方が優先。同時なら明確な声が優先、次いでチップ。',
+    tags:['ベット方法','声','チップ'] },
+
+  { n:41, cat:'bet',  title:'コールの方法',
+    body:'標準的なコール方法：A)「コール」の声、B)コール額と同額のチップを押し出す、C)サイレントでオーバーチップを1枚押し出す、D)複数チップコール（ルール45参照）。【注意】ベットに対して著しく小さいチップを黙って出す行為（例：ブラインド2k-4k、Aが50kベットに対してBが1kチップを1枚黙って出す）は非標準で強く推奨されず、ペナルティ対象となりフルコールと裁定される場合があります。',
+    key:'コール方法：①「コール」声 ②コール額チップ ③オーバーチップ1枚 ④複数チップ(ルール45)。著しく小さいチップを黙って出す行為は非標準・ペナルティ対象。',
+    tags:['コール','方法','非標準'] },
+
+  { n:42, cat:'bet',  title:'レイズの方法',
+    body:'ノーリミット/ポットリミットのレイズには：1モーションで全チップを置く、またはチップを置く前に合計金額を声で宣言することが必要です。',
+    key:'レイズ＝1モーションで全チップ、またはチップ前に合計金額の声宣言。',
+    tags:['レイズ','方法','ノーリミット'] },
+
+  { n:43, cat:'bet',  title:'レイズ金額',
+    body:'レイズはそのラウンドの最大フルベット/レイズ以上でなければなりません。前のマックスの50%以上でミニマムレイズ未満の場合はフルミニマムレイズが必要です。前のマックスの50%未満はコールとなります。ただし「レイズ」と先に宣言した場合、またはプレイヤーがオールインの場合はこの限りではありません（ルール45-B）。金額宣言とチップを同額押し出すことは同等です。なお「レイズ、〇〇〇〇」と宣言した場合、その金額がベットの合計額となります（例：Aが2000のオープン後、Bが「レイズ、8000」＝合計8000のベット）。',
+    key:'レイズ＝前の最大ベット/レイズ以上。50%未満はコール（ただし先に「レイズ」宣言またはオールインは除く）。50%以上ならミニマムレイズ強制。「レイズ+金額」の宣言は合計額。',
+    tags:['レイズ金額','最小レイズ','50%ルール'] },
+
+  { n:44, cat:'bet',  title:'大きいチップのベット（オーバーチップ）',
+    body:'ベットまたはブラインドに直面して1枚の大きいチップを押し出した場合、チップがテーブル面に触れる前に「レイズ」と宣言しない限りコールとなります（ラストチップも含む）。「レイズ」と宣言したが金額を言わなかった場合、そのチップで許容される最大レイズとなります。ベットに直面していない状態でオーバーチップを宣言なしで黙って押し出した場合は、そのチップで可能な最大ベットとなります。',
+    key:'大チップ1枚：チップがテーブルに触れる前に「レイズ」宣言がなければコール。金額なし「レイズ」＝チップの最大レイズ。ベットなし黙って出す＝最大ベット。',
+    tags:['オーバーチップ','大チップ','コール'] },
+
+  { n:45, cat:'bet',  title:'複数チップのベッティング',
+    body:'コールに必要な全チップ＝コール。必要でないチップが残る場合：ミニマムレイズ控除後の残りが前回マックスの50%未満＝コール。50%以上またはオールイン（問わず）＝50%ルールによるレイズ。',
+    key:'複数チップ：コール額に足りる＝コール。余る場合：余りが前マックスの50%未満→コール、50%以上またはオールイン→レイズ。',
+    tags:['複数チップ','ベット','レイズ','コール'] },
+
+  { n:46, cat:'bet',  title:'前のベットチップへの追加',
+    body:'前のベットチップへチップを追加する前にアクションを宣言してください。前のベットの減額はコール/レイズ義務を発生させます。曖昧な追加は前の露出/減額に基づいてルール41-45のコール/レイズルールに従います。',
+    key:'前のベットチップに追加する前にアクション宣言が必要。',
+    tags:['追加チップ','ベット','宣言'] },
+
+  { n:47, cat:'bet',  title:'ベットの再オープン',
+    body:'ショートオールインが累積的にフルベット/レイズと同等になった場合、ベットが再オープンされ、全プレイヤーに再オープンされます。ポットリミット：前のマックスの50%＝再オープンの閾値。',
+    key:'ショートオールインが累積でフルレイズ以上→全プレイヤーへの再オープン。PLは50%が閾値。',
+    tags:['再オープン','ショートオールイン','ベット'] },
+
+  { n:48, cat:'bet',  title:'レイズの回数制限',
+    body:'ノーリミット/ポットリミット：レイズは無制限。リミット：トーナメントの残り人数が2人になるまではヘッズアップでもキャップが適用されます（ハウスのキャップ設定が適用）。残り2人になって初めてキャップが外れます。',
+    key:'NL/PL：レイズ無制限。リミット：残り2人になるまではヘッズアップでもキャップあり。トーナメント最終2人で初めてキャップ撤廃。',
+    tags:['レイズ回数','リミット','キャップ'] },
+
+  { n:49, cat:'bet',  title:'受け入れられたアクション',
+    body:'ベットの理解を訂正してください。誤情報にもかかわらず正しくアクションしたコーラーのアクションは有効で、正しいベット金額に調整されます。ルール1が適用されます。',
+    key:'誤情報でも正しいアクションをしたコーラーは有効。ベット金額を正しい額に調整。',
+    tags:['受け入れたアクション','誤情報','調整'] },
+
+  { n:50, cat:'bet',  title:'順序立ったアクション',
+    body:'声またはチップによるアクション、あるいはその両方が拘束力を持ちます。プレイヤーはベット金額が明確になるまで待ちます。',
+    key:'声またはチップのアクションは拘束力あり。明確なベット額が確定するまで待つこと。',
+    tags:['アクション','拘束力','順序'] },
+
+  { n:51, cat:'bet',  title:'拘束力ある宣言と順序立ったアンダーコール',
+    body:'「コール」「レイズ」などの一般的な声の宣言は、フルの現在アクションへの拘束力を持ちます。アンダーコール（先に「コール」と宣言せずにコール額未満を押し出す）は、①ヘッズアップでのあらゆるベット、または②マルチウェイでの各ラウンドのオープニングベット（最初のチップベット、チェックは除く）に直面している場合はフルコールが必須です。ブラインドゲームではBBがプリフロップのオープナーです。それ以外の状況ではTDの裁量で、アンダーコール額を没収してフォールドを認める場合があります。複数のアンダーコールが連続した場合は最初のアンダーコーラーまで戻し、TDが後続を判断します。',
+    key:'「コール」宣言は拘束力あり。アンダーコール強制フルコール：①ヘッズアップ全ベット ②マルチウェイのオープニングベット（BBはプリフロップのオープナー）。その他はTD裁量。',
+    tags:['宣言','アンダーコール','拘束力','オープニングベット'] },
+
+  { n:52, cat:'bet',  title:'不正確なベット・不足・レイズ',
+    body:'リミット/ノーリミット：誤った最小額はラウンド中に訂正されます（リバー後は不可）。ポットリミット：過剰カウントはラウンド中に訂正、過少カウントはSA前に訂正されます。',
+    key:'誤ったベット額はラウンド中に訂正。リバー後の訂正は不可。PL過剰：ラウンド中、PL過少：SA前。',
+    tags:['不正確なベット','訂正','ポットリミット'] },
+
+  { n:53, cat:'bet',  title:'アウトオブターンアクション（OOT）',
+    body:'正しいプレイヤーに戻します。OOTは後続のアクションが変わらない場合は拘束力を持ちます。アクションが変わった場合は解除されます。ペナルティが適用されます。OOTフォールドは拘束力を持ちます。スキップされたプレイヤーの権利は保護されます。SA前に抗議がなければOOTは拘束力を持ちます。',
+    key:'OOTは後続アクション不変→拘束力あり。アクション変化→解除。OOTフォールドは常に拘束力あり。',
+    tags:['OOT','アウトオブターン','フォールド'] },
+
+  { n:54, cat:'bet',  title:'ポットサイズとポットリミットベッティング',
+    body:'ポットリミットのみ：プレイヤーはカウントを要求できます。リミット/ノーリミット：ディーラーはカウントしません。プリフロップ：デッドSB/ショートBBはポット計算に影響しません。フルBBを想定します。ポストフロップ：実際のポット。「ポットベット」宣言はノーリミットでは無効で、最小有効ベット以上が必要です。ペナルティの可能性あり。',
+    key:'PLのみカウント要求可。NLでは「ポットベット」は無効。プリフロップのデッドSB/ショートBBはポット計算から除外。',
+    tags:['ポットリミット','ポットサイズ','ベット'] },
+
+  { n:55, cat:'bet',  title:'無効なベット宣言',
+    body:'ベットなしでの「コール」宣言＝チェック。ベットなしでの「レイズ」宣言＝最小レイズの最小額。ベットに直面した「チェック」宣言＝コールまたはフォールドのみ、レイズ不可。',
+    key:'ベットなし「コール」＝チェック。ベットなし「レイズ」＝ミニマムレイズ。ベット直面「チェック」＝コール/フォールドのみ。',
+    tags:['無効宣言','コール','レイズ','チェック'] },
+
+  { n:56, cat:'bet',  title:'ストリングベット',
+    body:'ストリングベット（複数回の動作でチップを追加すること）は禁止されています。レイズは1モーションで行うか、事前に合計額を声で宣言する必要があります。',
+    key:'ストリングベット禁止。レイズは1モーション、または事前に合計額を声で宣言すること。',
+    tags:['ストリングベット','禁止','レイズ'] },
+
+  { n:57, cat:'bet',  title:'非標準・不明確なベット',
+    body:'非公式な用語の使用はリスクがあります。曖昧なサイジングは前のポットカウント以下の最高合理的な金額に解釈されます。',
+    key:'曖昧なベット＝前のポット以下の最高合理的な金額に解釈。非公式用語はリスクあり。',
+    tags:['非標準ベット','曖昧','解釈'] },
+
+  { n:58, cat:'bet',  title:'非標準フォールド',
+    body:'最終ベッティングラウンド終了前に、①ベットされていない状況でのターン内フォールド（例：チェックに直面している/ポストフロップで最初のアクション）、または②アウトオブターンでのフォールドは、いずれも拘束力のあるフォールドでありペナルティの対象となります。またルール15-Bの例外（ベットして自分が勝ったと思い先にカードを捨てた場合）も参照してください。',
+    key:'ノーベット時のターン内フォールド＆OOTフォールドは両方とも拘束力あり＋ペナルティ対象。フォールドは常に取り消し不可。',
+    tags:['フォールド','非標準','OOT','ペナルティ'] },
+
+  { n:59, cat:'bet',  title:'条件付き不完全宣言',
+    body:'条件付き宣言は非標準であり、拘束力を持つ可能性があり、ペナルティの対象となる場合があります。不完全な宣言後：TDが拘束力のあるベット金額を設定します。',
+    key:'条件付き宣言（「あなたがAを持っていたらコール」等）は非標準でペナルティ対象。TDがベット額を決定。',
+    tags:['条件付き宣言','非標準','ペナルティ'] },
+
+  { n:60, cat:'bet',  title:'相手チップスタックのカウント',
+    body:'合理的な推定が許容されます。オールインに直面した場合は正確なカウントを要求できます。スタックを可視/カウント可能に保つことで精度が向上します（ルール25参照）。',
+    key:'通常は推定でOK。オールインに直面した場合のみ正確なカウントを要求できる。',
+    tags:['スタックカウント','オールイン','確認'] },
+
+  { n:61, cat:'bet',  title:'おつりを求めたオーバーベット',
+    body:'おつりを求めてベットするのはリスクがあり、誤った解釈をされる可能性があります。複数のチップはルール45に従ってレイズとみなされる場合があります。',
+    key:'おつり目的の大額ベットはリスクあり。複数チップはレイズと解釈される可能性がある。',
+    tags:['おつり','オーバーベット','リスク'] },
+
+  { n:62, cat:'bet',  title:'後から発見された隠れたオールインチップ',
+    body:'コール後に隠れたチップが発見された場合：TDがアクションの受け入れを判断します。受け入れられない場合：チップを保持。ハンドを失った場合：チップはコーラーに渡る場合があります。',
+    key:'コール後に隠しチップ発見→TDが判断。不受理ならチップ保持。ハンド負けなら隠しチップはコーラーへ。',
+    tags:['隠れたチップ','オールイン','後から発見'] },
+
+  // エチケット・ペナルティ
+  { n:63, cat:'eth',  title:'隠れたチップと移動するチップ',
+    body:'チップは常に見える状態でなければなりません。見えないチップは没収/失格のリスクがあります。チップラックの使用を推奨します。',
+    key:'チップは常に可視状態に。隠れたチップは没収・失格のリスクあり。',
+    tags:['チップ可視','隠れたチップ','失格'] },
+
+  { n:64, cat:'eth',  title:'紛失チップ',
+    body:'所有者不明で発見されたチップはプレイから取り除かれ、在庫に戻されます。',
+    key:'所有者不明チップはプレイから除外し在庫に返却。',
+    tags:['紛失チップ','所有者不明'] },
+
+  { n:65, cat:'eth',  title:'誤キル・フォールドデッキ・公開されたハンド',
+    body:'A: プレイヤーは常にハンドを保護する必要があります（ショーダウン中も含む）。ディーラーが誤ってキルした場合、またはTDの判断でハンドが100%確実に識別・回収できない場合、プレイヤーはいかなる救済も受けられず、コールしたベットの返還も受けられません。ただしプレイヤーがベット/レイズを始めてまだコールされていない場合、未コール額は返還されます。B: ハンドがフォールドしているが100%識別可能な場合、カードが公開されていてもハンドはプレイ継続となります。',
+    key:'65A：誤キルで識別不能→救済なし・ベット返還なし（未コール額は返還）。65B：フォールドしても識別可能なハンドはプレイ継続。',
+    tags:['誤キル','ハンド保護','識別','フォールドデッキ'] },
+
+  { n:66, cat:'eth',  title:'スタッドのデッドハンドとマック',
+    body:'アクション時にアップカードを取ることはデッドハンドとなります。正しいスタッドのマック＝全アップカードを裏向きで前に出すこと。',
+    key:'スタッドでアクション中にアップカードを取る＝デッドハンド。マックは全アップカードを裏向きで前に。',
+    tags:['スタッド','デッドハンド','マック'] },
+
+  { n:67, cat:'eth',  title:'情報開示禁止・ワンプレイヤーワンハンド',
+    body:'常に相手を保護してください。禁止事項：ライブ/マックのハンド内容の開示、プレイアドバイス/批評、未公開ハンドへの推測。ワンプレイヤーワンハンド：他のプレイヤーにカードを見せたり戦略を相談したりしてはいけません。',
+    key:'1プレイヤー1ハンドの原則。ハンド内容の開示・プレイアドバイス・ハンド推測は全て禁止。',
+    tags:['情報開示','ワンプレイヤー','ワンハンド','禁止'] },
+
+  { n:68, cat:'eth',  title:'カード公開と正しいフォールド',
+    body:'アクション待ちのハンドを公開した場合はペナルティ対象となりますが、デッドにはなりません。ペナルティはハンド終了後に開始されます。フォールド：カードを低く持ち、意図的に公開したり投げたりしないこと。',
+    key:'アクション待ちハンドの公開＝ペナルティ対象だがデッドではない。フォールドはカードを低く保ち静かに。',
+    tags:['カード公開','フォールド','ペナルティ'] },
+
+  { n:69, cat:'eth',  title:'倫理的プレイ',
+    body:'ポーカーは個人ゲームです。ソフトプレイはペナルティ（チップ没収・失格を含む）の対象となります。チップダンピングやその他のコルージョン（共謀）は失格となります。【重要】リバーでラストアクションの状況でエクスクルーシブナッツ（唯一の最強ハンド）をチェックしてもそれだけでは自動的にソフトプレイ違反とはなりません。状況に応じてTDが裁量で判断します。',
+    key:'ソフトプレイ禁止（ペナルティ・失格）。チップダンピング・コルージョン→失格。リバーでのナッツチェック単体は自動的なソフトプレイ違反ではない（TDの裁量）。',
+    tags:['倫理','ソフトプレイ','コルージョン','失格','ナッツ','チェック'] },
+
+  { n:70, cat:'eth',  title:'エチケット違反',
+    body:'違反例：慢性的な遅延、不必要な接触、繰り返しのOOT、不明確なチップの持ち方、届かない場所へのベット、ハラスメント、不快な臭い、過度な会話。これらの行為はペナルティの対象となります。',
+    key:'エチケット違反例：慢性的遅延/不要な接触/繰り返しOOT/不明確チップ/ハラスメント等。すべてペナルティ対象。',
+    tags:['エチケット','マナー','ペナルティ','違反'] },
+
+  { n:71, cat:'eth',  title:'警告・ペナルティ・失格',
+    body:'A: 執行選択肢（これらに限らない）：口頭警告、1ハンド以上の「ミスハンド」または「ミスラウンド」ペナルティ、失格。ミスラウンドのペナルティハンド数＝ペナルティ付与時のテーブル人数×ペナルティラウンド数。繰り返し違反はペナルティがエスカレートします。テーブル不在中またはペナルティ中のプレイヤーはブラインドアウトでトーナメント脱落する可能性があります。B: ペナルティを科す「場合がある」違反：エチケット違反（ルール70）、アクション待ちのカード公開、カードを投げる、ワンプレイヤーワンハンド違反、電子機器/戦略ツールの不正使用（ルール5）など。ペナルティを科す「必要がある」違反：ソフトプレイ、ハラスメント、妨害行為、ブラインド回避、不正行為。リバーでラストアクションのエクスクルーシブナッツチェックは自動的なソフトプレイ違反ではありません（TDの裁量）。C: ペナルティ中のプレイヤーはテーブルを離れなければなりません。カードは配られ、ブラインド/アンティはポストされますが、ハンドは最初のディール後にキルされます。スタッドのブリングインが配られた場合はブリングインをポストしなければなりません。D: 失格プレイヤーのチップはプレイから取り除かれます。',
+    key:'71A：口頭警告→ミスハンド→ミスラウンド→失格。テーブル不在中もブラインドアウトあり。71B：「場合がある」vs「必要がある」ペナルティの区別。ナッツチェック単体は自動違反でない。71C：ペナルティ中はテーブル離席、ブラインドキル、スタッドブリングインはポスト必須。71D：失格でチップ没収。',
+    tags:['ペナルティ','警告','失格','ミスラウンド','ソフトプレイ','ナッツ'] },
+];
+
+// ===== RECOMMENDED PROCEDURES & EXAMPLES =====
+const EXTRA_RULES = [
+  // 推奨手順
+  { n:'RP-1',  label:'RP-1',  cat:'rp', title:'オールインボタン',
+    body:'オールインボタンはディーラーが預かり、プレイヤーがオールインした際にテーブルの見える位置に置く。オールインプレイヤーのアクションを全員が把握できるよう明示する。',
+    key:'ディーラーがオールインボタンを管理。オールイン時にテーブルに置いて全員に明示。',
+    tags:['オールイン','ボタン','推奨手順'] },
+
+  { n:'RP-2',  label:'RP-2',  cat:'rp', title:'ブリンギングは推奨されない',
+    body:'ベットやレイズのたびにチップを手前に引く「ブリンギング」は推奨されません。アクション中のプレイヤーのみがブリンギングを求めることができます。',
+    key:'ブリンギングは推奨しない。アクション中のプレイヤーのみ要求可能。',
+    tags:['ブリンギング','ベット','推奨手順'] },
+
+  { n:'RP-3',  label:'RP-3',  cat:'rp', title:'個人の持ち物',
+    body:'テーブルは「チップスタック管理、ディーリング、ベッティング」のための重要な場所です。不要な私物でテーブルを散らかしてはなりません。プレイのスペースを常に確保してください。',
+    key:'テーブルは不要な私物で散らかさないこと。',
+    tags:['私物','テーブル','マナー','推奨手順'] },
+
+  { n:'RP-4',  label:'RP-4',  cat:'rp', title:'順序が乱れたスタブ',
+    body:'元の順序復元を優先します。不可能な場合は新しいスタブを作成し、シャッフル・カット後に使用を継続します。',
+    key:'スタブの順序乱れ：元の順序復元を優先。不可能なら新スタブをシャッフル・カット後使用。',
+    tags:['スタブ','デッキ','シャッフル','推奨手順'] },
+
+  { n:'RP-5',  label:'RP-5',  cat:'rp', title:'予定より早く出されたカード',
+    body:'早々のフロップ：バーンカードはそのまま、早々なフロップはスタブに戻しリシャッフル後に新フロップを開く。ターン・リバーも同様に対応します。',
+    key:'早期公開カード：バーンそのまま、早期カードをスタブに戻してリシャッフル、新カードを開く。',
+    tags:['早期カード','フロップ','ターン','リバー','推奨手順'] },
+
+  { n:'RP-6',  label:'RP-6',  cat:'rp', title:'効率的なプレイヤー移動',
+    body:'テーブルブレイク時の移動は迅速に行います。チップラックの提供やカラーアップで持ち運び量を減らし、スムーズな移動を促進します。',
+    key:'テーブルブレイク時はチップラック提供・カラーアップで迅速に移動。',
+    tags:['テーブルブレイク','移動','カラーアップ','推奨手順'] },
+
+  { n:'RP-7',  label:'RP-7',  cat:'rp', title:'ディーラー交代のタイミング',
+    body:'休憩やブラインドアップ90秒前からのディーラー交代は避けることを推奨します。重要な局面での時間切れを防止するためです。',
+    key:'ブラインドアップや休憩の90秒前からのディーラー交代は避けること。',
+    tags:['ディーラー交代','タイミング','推奨手順'] },
+
+  { n:'RP-8',  label:'RP-8',  cat:'rp', title:'H4H（ハンドフォーハンド）の手順',
+    body:'払い出し資格はH4H開始アナウンス時点から開始。1ハンド当たり最大3分（推奨2分）。H4H中はオールイン後のハンドを裏向きで保ちます。アナウンスより前に始まったハンドは完了させます。',
+    key:'H4H：アナウンス時点から資格開始。1ハンド最大3分（推奨2分）。オールインハンドは裏向き保持。',
+    tags:['H4H','ハンドフォーハンド','バブル','推奨手順'] },
+
+  { n:'RP-9',  label:'RP-9',  cat:'rp', title:'ファイナルテーブルの構成人数',
+    body:'9人・8人イベント：5人×2テーブルから9人へ統合。7人・6人イベント：4人×2テーブルから7人へ統合します。',
+    key:'9/8人イベント：5人×2→9人FT。7/6人イベント：4人×2→7人FT。',
+    tags:['ファイナルテーブル','テーブル構成','推奨手順'] },
+
+  { n:'RP-10', label:'RP-10', cat:'rp', title:'スタッドトーナメントのディーリング手順',
+    body:'A) ダウンカード公開時はアップカード扱い。B) 7thストリート公開時はベット継続時のみ交換。C) 席不在プレイヤーのカードはキル。D) 同じハンドは最高スートから開始。E) ローカード全員同額時は左から開始。F) ペア表示時も4thは2倍ベットなし。G) 早々なカードはスタブに戻しリシャッフル。H) 7thでスタブ不足時は詳細手順に従う。',
+    key:'スタッドの各種特殊ケース（公開カード・7thスタブ不足・席不在等）の処理手順。',
+    tags:['スタッド','ディーリング','7thストリート','推奨手順'] },
+
+  { n:'RP-11', label:'RP-11', cat:'rp', title:'アンティ形式と減額禁止',
+    body:'シングルプレイヤーアンティ使用時はBBアンティ形式を推奨します。イベント進行中のアンティ減額は避けてください。',
+    key:'BBアンティ形式を推奨。イベント進行中のアンティ減額は不可。',
+    tags:['アンティ','BBアンティ','推奨手順'] },
+
+  { n:'RP-12', label:'RP-12', cat:'rp', title:'ディーラーはベット・レイズをアナウンスすべき',
+    body:'ディーラーはベット額を常にアナウンスし続けます。オールインのカウントは要求があった場合のみ行います。',
+    key:'ディーラーは常にベット額をアナウンス。オールインカウントは要求時のみ。',
+    tags:['ディーラー','アナウンス','ベット','推奨手順'] },
+
+  { n:'RP-13', label:'RP-13', cat:'rp', title:'スプリットポットゲームでのチップスタック化',
+    body:'スプリットポットゲームでは、ポットを定期的にスタック化して視認性を向上させます。ただしゲーム進行の妨害は避けてください。',
+    key:'スプリットポットゲームではポットをスタック化して視認性を確保。ゲーム妨害は不可。',
+    tags:['スプリットポット','チップスタック','視認性','推奨手順'] },
+
+  { n:'RP-14', label:'RP-14', cat:'rp', title:'特別な状況でのランダム性の適用',
+    body:'規定外の誤り修復時、TDはランダム性の概念で解決法を編み出すことができます。',
+    key:'規定外エラーの修復：TDはランダム性概念を用いて解決策を編み出すことができる。',
+    tags:['ランダム性','エラー修復','TDA裁量','推奨手順'] },
+
+  { n:'RP-15', label:'RP-15', cat:'rp', title:'トーナメントスタッフの適切なコミュニケーション',
+    body:'A) ディーラー交代時の情報引き継ぎ（ブラインドレベル、警告、ペナルティ中プレイヤー等）。B) ルール違反や差別的行為はフロアに報告すること。',
+    key:'交代時は警告・ペナルティ情報を引き継ぐ。ルール違反・差別的行為はフロアへ報告。',
+    tags:['スタッフ','コミュニケーション','引き継ぎ','推奨手順'] },
+
+  { n:'RP-16', label:'RP-16', cat:'rp', title:'ブレイクするテーブルにいないプレイヤー',
+    body:'テーブルブレイク時に離席しているプレイヤーのチップは、スタッフが新テーブルに移動させます。',
+    key:'テーブルブレイク時の不在プレイヤーのチップはスタッフが新テーブルへ移動。',
+    tags:['テーブルブレイク','不在','チップ移動','推奨手順'] },
+
+  { n:'RP-17', label:'RP-17', cat:'rp', title:'トーナメントにおけるドローゲームのベッティング手順',
+    body:'リンプ（コール）はシングルドローゲームのすべてで許可されています。',
+    key:'シングルドローゲームでのリンプは全て許可。',
+    tags:['ドローゲーム','リンプ','ベッティング','推奨手順'] },
+
+  { n:'RP-18', label:'RP-18', cat:'rp', title:'ミックスゲームの順序',
+    body:'エラー削減のため、スタッドとスタッド8は連続してプレイする必要はありません。ミックスゲームの順序は柔軟に設定できます。',
+    key:'スタッドとスタッド8の連続プレイは不要。ミックスゲームの順序はエラー削減を優先して設定。',
+    tags:['ミックスゲーム','スタッド','順序','推奨手順'] },
+
+  { n:'RP-19', label:'RP-19', cat:'rp', title:'遅延行為の抑制',
+    body:'ハウスは遅延抑制の意図を明確にアナウンスします。ランダムテーブルブレイクやショットクロックの追加など工夫を推奨します。',
+    key:'ハウスは遅延抑制をアナウンス。ショットクロック導入等の対策を推奨。',
+    tags:['遅延','ショットクロック','スピード','推奨手順'] },
+
+  { n:'RP-20', label:'RP-20', cat:'rp', title:'シャッフル準備',
+    body:'開始1分前に「デック準備指示」をアナウンスします。最低2人が着席している際、ディーラーはウォッシュ・まとめ・カット準備を行います。',
+    key:'開始1分前に準備指示アナウンス。2人着席時からウォッシュ・シャッフル・カット準備。',
+    tags:['シャッフル','デック準備','推奨手順'] },
+
+  { n:'RP-21', label:'RP-21', cat:'rp', title:'ポットの広げ方',
+    body:'ポットのカウントはポットリミットのみ実施します。視認性向上のため要求時にポットを展開することができます。',
+    key:'ポットカウントはPLのみ。要求時にポット展開可能。',
+    tags:['ポット','カウント','ポットリミット','推奨手順'] },
+
+  { n:'RP-22', label:'RP-22', cat:'rp', title:'額面のないアイテムでのベット',
+    body:'バウンティチップなど額面のないアイテムは、標準ベッティングチップと異なるサイズであるべきです。額の解釈はハウスポリシーまたはTDの裁量によります。',
+    key:'バウンティ等の額面なしアイテムは標準チップと異なるサイズ使用。額はハウスポリシーまたはTD裁量。',
+    tags:['バウンティ','額面なし','ベット','推奨手順'] },
+
+  // 追補例解
+  { n:'例-10', label:'例-10', cat:'ex', title:'テーブルブレイクの2段階ランダム手順',
+    body:'「ダブルブラインド」方法：①シートカードを裏向きにシャッフル。②各プレイヤーにトランプを1枚配布し、強いカードを持つ順にシートを割り当てます。この手順でランダム性と公平性を確保します。',
+    key:'テーブルブレイク時のランダム移動：裏向きシートカードをシャッフル→配布→強いカード順にシート選択。',
+    tags:['テーブルブレイク','ランダム','シート割当','追補例解'] },
+
+  { n:'例-11D', label:'例-11D', cat:'ex', title:'テーブルバランスとプレイの中断',
+    body:'例：9人制で最大テーブルが8人、最小テーブルが5人のとき。最小テーブルでBBポジションが空席の場合にプレイが中断されます。最大との差が3人以上になり、かつブラインドがアクションに影響する場合が対象です。',
+    key:'最大テーブルとの差が3人以上かつブラインドがアクションに影響→プレイ中断。',
+    tags:['テーブルバランス','プレイ中断','BB','追補例解'] },
+
+  { n:'例-16', label:'例-16', cat:'ex', title:'オールイン時のホールカードのフェイスアップ',
+    body:'オールイン後「全ベッティングアクション完了時点で全ハンド公開」。例1：ヘッズアップオールイン→即公開。例2：マルチウェイで追加ベットが残る場合→全ベッティング完了後に公開。例3：複数オールインがある複雑なマルチウェイ→最後の有効ベットが完了した時点で全公開。',
+    key:'全ベッティングアクション完了時点で全参加者のハンドを公開。追加ベットが残る間は保持可。',
+    tags:['オールイン','フェイスアップ','公開','追補例解'] },
+
+  { n:'例-18', label:'例-18', cat:'ex', title:'ハンドの開示要求',
+    body:'例1：リバーでコールした場合、コーラーはベッターのハンドを見る絶対的権利があります。例2：マルチウェイで「見るために支払った」プレイヤーは全員ハンドを見る権利があります。フォールドしたプレイヤーはこの権利を持ちません。',
+    key:'リバーコーラーはベッターのハンド開示を要求する絶対的権利あり。フォールドしたプレイヤーには権利なし。',
+    tags:['ハンド開示','コール','リバー','追補例解'] },
+
+  { n:'例-38', label:'例-38', cat:'ex', title:'サブスタンシャルアクション後のバーン',
+    body:'例1-A：SA後のミスディールでも「1枚バーンのみ」（カード枚数修正のために2枚バーンは不要）。例1-B：ミスディール後の再ディールでも通常通り1枚バーンしてから各ストリートを配ります。',
+    key:'SA後のミスディール→バーンは1枚のみ。2枚バーンは不要。',
+    tags:['バーン','サブスタンシャルアクション','ミスディール','追補例解'] },
+
+  { n:'例-40A', label:'例-40A', cat:'ex', title:'不明確・矛盾するベットの方法',
+    body:'例：声での宣言と実際に出したチップ額が異なる場合。TDは「状況とルール第1項（公平性）」を勘案して決定します。声が先か、チップが先かを確認し、先行したアクションを優先します。',
+    key:'声とチップが矛盾→先行したアクションを優先。TDはルール1（公平性）に基づいて判断。',
+    tags:['不明確なベット','矛盾','声','チップ','追補例解'] },
+
+  { n:'例-43', label:'例-43', cat:'ex', title:'レイズ額の計算（増分の概念）',
+    body:'例1：オールインでのレイズ増分計算。例2：ポット金額に基づくレイズ。例3：同ラウンドで複数回レイズがある場合の最大レイズ額。例4-A/B：ショートオールインを含む場合の最大レイズ増分計算の詳細。',
+    key:'レイズ額は「増分」に着目。前の最大ベット/レイズ以上の増分が必要。複数レイズ時は最大増分を基準。',
+    tags:['レイズ額','増分','計算','オールイン','追補例解'] },
+
+  { n:'例-45', label:'例-45', cat:'ex', title:'複数チップのベッティング詳細',
+    body:'例1-A：コールに必要な額未満の複数チップ→コール。例1-B：余剰が前回マックスの50%未満→コール。例2：余剰が50%以上→50%ルールによりレイズ。例3：複数チップのオールイン→常にレイズ（50%問わず）。例4-A/B：コール額と余剰チップの複合パターン。',
+    key:'複数チップ：余剰が前マックスの50%未満→コール。50%以上またはオールイン→レイズ。',
+    tags:['複数チップ','50%ルール','コール','レイズ','追補例解'] },
+
+  { n:'例-46', label:'例-46', cat:'ex', title:'前のベットチップへの追加（状況例）',
+    body:'状況1：前ベット未満のチップを追加→コールのみ。状況2：前ベット超のチップを追加→レイズ義務。状況3：一部チップを引き戻してから追加→引き戻し額に基づくコール/レイズ判定。状況4-5：50%基準の適用ケース詳細。',
+    key:'前ベットチップへの追加：追加前にアクション宣言必須。引き戻しはコール/レイズ義務を発生させる。',
+    tags:['チップ追加','前ベット','引き戻し','追補例解'] },
+
+  { n:'例-47', label:'例-47', cat:'ex', title:'ベットのリオープン（複数ショートオールイン）',
+    body:'例1-A：ショートオールインが1回→フルレイズ未満なので再オープンなし。例1-B：複数ショートオールインが累積でフルレイズ以上→全プレイヤーへ再オープン。例2-3：ポットリミットでの50%閾値適用と再オープン条件。',
+    key:'複数ショートオールインの累積がフルレイズ以上になって初めて全員へ再オープン。',
+    tags:['再オープン','ショートオールイン','累積','追補例解'] },
+
+  { n:'例-51', label:'例-51', cat:'ex', title:'拘束される宣言とアンダーコール',
+    body:'例1：「コール」宣言があれば拘束力あり→正しいコール額に調整。例2：マルチウェイでの判定。例3：「コール」宣言なしで金額だけ出した場合。例4：正しいコール額の要件とアンダーコール修正の手順。',
+    key:'「コール」宣言は拘束力あり→正しい額に調整。アンダーコールは状況・多人数で判断が異なる。',
+    tags:['コール宣言','アンダーコール','拘束力','追補例解'] },
+
+  { n:'例-52B', label:'例-52B', cat:'ex', title:'ポットリミットでの不正確なベット額',
+    body:'例1：ポットカウント誤りでSA前→訂正可能。例2：SA後のオーバーベット→プレイヤーは正しい額に減額される。例3：過度なオーバーベット（ポットの2倍以上など）→TDが裁量でポット額に調整、ペナルティの可能性あり。',
+    key:'PL誤額：SA前→訂正可。SA後→超過分は減額調整。過度な超過はTD裁量＋ペナルティも。',
+    tags:['ポットリミット','不正確なベット','訂正','追補例解'] },
+
+  { n:'例-53A', label:'例-53A', cat:'ex', title:'アウトオブターンアクション（OOT）の詳細',
+    body:'例1：OOT後に正しい順序に戻す。後続のアクションが変わらなければOOTは拘束力を持ちます。例2：OOTが起きた後に前のプレイヤーがアクションを変えた（例：チェック→ベット）場合、OOTは解除されそのプレイヤーは選択肢を取り戻します。',
+    key:'OOT後：後続アクション不変→拘束力あり。前プレイヤーがアクション変更（チェック→ベット等）→OOT解除・選択肢復活。',
+    tags:['OOT','アウトオブターン','拘束力','解除','追補例解'] },
+
+  { n:'例-53B', label:'例-53B', cat:'ex', title:'実質的な順序にそわないアクション（OOT）',
+    body:'例1：SA認定基準の適用。スキップされたプレイヤーが申告する機会がある間はOOTは拘束力を持ちません。例2：スキップされたプレイヤーがSA前に申告しなかった場合、OOTは拘束力を持ちます。フォールドのOOTは常に拘束力あり（ルール53）。',
+    key:'スキップされたプレイヤーが申告すれば→OOT解除。SA前に申告なし→OOT拘束力あり。OOTフォールドは常に拘束力あり。',
+    tags:['OOT','サブスタンシャルアクション','拘束力','スキップ','追補例解'] },
+];
+RULES.push(...EXTRA_RULES);
+
+// ===== QUIZ DATA =====
+const QUIZZES = [
+  { ruleN:3,  cat:'一般概念',
+    q:'テーブルで指でトントン叩く（タップ）ジェスチャーは何を意味しますか？',
+    opts:['A. ベット','B. チェック','C. コール','D. フォールド'],
+    ans:1, explain:'ルール3：テーブルタップは公式ジェスチャーで「チェック」を意味します。TDAの公式用語として確立されています。' },
+  { ruleN:12, cat:'ポット・ショーダウン',
+    q:'ショーダウンで勝者を決定するのはどれですか？',
+    opts:['A. プレイヤーの口頭宣言','B. カードスピーク（カードの実際の強さ）','C. ディーラーの判断','D. プレイヤーの多数決'],
+    ans:1, explain:'ルール12：カードスピーク（Card Speak）が原則です。口頭宣言は拘束力がなく、カードの実際の強さが勝者を決定します。' },
+  { ruleN:29, cat:'一般手続',
+    q:'クロックをかけられたプレイヤーは何秒以内にアクションしなければなりませんか？',
+    opts:['A. 15秒+5秒カウントダウン','B. 20秒+5秒カウントダウン','C. 25秒+5秒カウントダウン','D. 30秒+5秒カウントダウン'],
+    ans:2, explain:'ルール29：クロック後は25秒＋5秒カウントダウン以内にアクションが必要。タイムアウト時、ベット直面なら死んだハンド、そうでなければチェックとなります。' },
+  { ruleN:35, cat:'ボタン・ブラインド・ディール',
+    q:'ミスディールと判定されるのはどの状況ですか？',
+    opts:['A. サブスタンシャルアクション後に1枚のカードが表向きになった','B. 最初の配りで2枚以上のカードが表向きになった','C. ターンカードが誤って公開された','D. プレイヤーが誤ってカードを見た'],
+    ans:1, explain:'ルール35：最初の配りで2枚以上のカードが表向きになった場合はミスディールです。サブスタンシャルアクション後はフォールドデッキ以外ミスディールにはなりません。' },
+  { ruleN:36, cat:'ボタン・ブラインド・ディール',
+    q:'サブスタンシャルアクション（SA）の正しい定義はどれですか？',
+    opts:['A. ブラインドのポスト','B. チェックが2回行われること','C. チップを使った2つの順序立てられたアクション（2チェック/2フォールドを除く）','D. 1プレイヤーのベットとコール'],
+    ans:2, explain:'ルール36：SAはチップを使った順序ある2アクション（チェック×2やフォールド×2は除く）、または順序ある3アクション。ブラインドポストはSAに含まれません。' },
+  { ruleN:43, cat:'ベッティング',
+    q:'前のレイズ額が1000の場合、50%ルール未満（400のレイズ）を宣言した場合どうなりますか？',
+    opts:['A. 400のレイズが有効','B. ミニマムレイズ（1000）になる','C. コールのみとなる','D. 無効でやり直し'],
+    ans:2, explain:'ルール43：前のマックスの50%未満のレイズ宣言はコールとなります。50%以上ならミニマムレイズが必要です。' },
+  { ruleN:44, cat:'ベッティング',
+    q:'500のベットに対して1000チップを1枚だしました。事前に「レイズ」と言っていない場合は？',
+    opts:['A. 1000のベット（フルベット）','B. コール（500）','C. 1000のレイズ','D. ミニマムレイズ'],
+    ans:1, explain:'ルール44：ベットに直面して大チップを1枚出した場合、事前に「レイズ」と宣言しない限りコールとなります。' },
+  { ruleN:53, cat:'ベッティング',
+    q:'アウトオブターン（OOT）フォールドはどうなりますか？',
+    opts:['A. 無効で正しいターンでアクションできる','B. 拘束力を持ち常にフォールドとなる','C. ペナルティのみで取り消し可能','D. TDの裁量で決定'],
+    ans:1, explain:'ルール53：OOTフォールドは常に拘束力を持ちます。その他のOOTアクションは後続のアクションが変化した場合に解除される場合があります。' },
+  { ruleN:67, cat:'エチケット・ペナルティ',
+    q:'ワンプレイヤーワンハンドの原則で禁止されていないのはどれですか？',
+    opts:['A. ハンドを他のプレイヤーに見せる','B. プレイについてアドバイスを求める','C. 自分のハンドについて心の中で考える','D. ライブハンドの内容を開示する'],
+    ans:2, explain:'ルール67：自分の心の中で考えることは当然禁止されていません。ハンドを見せる・アドバイスを求める・ハンド内容の開示はすべて禁止です。' },
+  { ruleN:71, cat:'エチケット・ペナルティ',
+    q:'ペナルティを受けたプレイヤーはペナルティ中どうしなければなりませんか？',
+    opts:['A. テーブルに残るがアクション禁止','B. テーブルを離れ、ブラインドはキルされる','C. フォールドのみ可能','D. 次のハンドからペナルティ開始'],
+    ans:1, explain:'ルール71：ペナルティを受けたプレイヤーはテーブルを離れなければなりません。その間のカード、ブラインド、アンティは全てキルされます。' },
+  { ruleN:16, cat:'ポット・ショーダウン',
+    q:'全員がオールインした場合、カードはいつ公開しなければなりませんか？',
+    opts:['A. リバー後に任意のタイミングで','B. オールインプレイヤーのベッティング完了時点で即座に','C. ポット計算後','D. TDの指示があってから'],
+    ans:1, explain:'ルール16：オールインプレイヤーのベッティングが完了した時点で、全参加者のハンドは遅延なく公開する義務があります。' },
+  { ruleN:20, cat:'ポット・ショーダウン',
+    q:'フロップゲームでスプリットポットの端数チップはどこへ行きますか？',
+    opts:['A. ハイハンドへ','B. ロウハンドへ','C. ボタンの左隣（ポストフロップ最初のアクタ―）へ','D. ディーラーが保管'],
+    ans:2, explain:'ルール20：ボードゲーム（フロップゲーム）では端数チップはボタンの左隣のプレイヤーへ。スタッドでは最強5枚ハイ、ハイ/ローではハイハンドへ。' },
+  { ruleN:47, cat:'ベッティング',
+    q:'ノーリミットで1000のレイズ後、プレイヤーAが400のショートオールインをしました。これはベットを再オープンしますか？',
+    opts:['A. はい、常に再オープン','B. いいえ、フルレイズ（1000）に満たないため再オープンしない','C. TDの裁量','D. ヘッズアップの場合のみ再オープン'],
+    ans:1, explain:'ルール47：ショートオールインがフルレイズ未満の場合は再オープンしません。累積的にフルレイズ以上になって初めて全プレイヤーへ再オープンされます。' },
+  { ruleN:11, cat:'シーティング',
+    q:'テーブルバランスで移動してきたプレイヤーはどのポジションに着席しますか？',
+    opts:['A. ボタン','B. スモールブラインド','C. 最も不利なポジション（通常BBの前）','D. 任意のポジション'],
+    ans:2, explain:'ルール11：テーブルバランスのために移動されたプレイヤーは最も不利なポジション（通常はBBの前）に配置されます。' },
+  { ruleN:24, cat:'一般手続',
+    q:'チップレースはどこから始まりますか？',
+    opts:['A. ボタンから','B. スモールブラインドから','C. シート1から','D. ランダムに決定'],
+    ans:2, explain:'ルール24：チップレースは常にシート1から開始されます。各プレイヤーに最大1枚ずつカードを配ります。プレイヤーはレースで脱落しない保護があります。' },
+  { ruleN:56, cat:'ベッティング',
+    q:'ストリングベットとは何ですか？',
+    opts:['A. 大きすぎるベット','B. 複数の動作でチップを追加する行為','C. 口頭宣言なしのベット','D. 相手に届かない場所へのベット'],
+    ans:1, explain:'ルール56：ストリングベットは複数回の動作でチップを追加することで禁止されています。レイズは1モーション、または事前に合計額を声で宣言する必要があります。' },
+  { ruleN:22, cat:'ポット・ショーダウン',
+    q:'ポットのエラーについての異議申し立ては、いつまでに行う必要がありますか？',
+    opts:['A. ハンド終了直後','B. 次のハンドが始まる前','C. 次のハンドのサブスタンシャルアクションが起きるまで','D. セッション終了まで'],
+    ans:2, explain:'ルール22：ポットのエラーについての異議は次のハンドのサブスタンシャルアクションまでに申し立てが必要です。ハンドに関する異議は次のハンド開始前まで。' },
+  { ruleN:34, cat:'ボタン・ブラインド・ディール',
+    q:'ヘッズアップ（一対一）では、ボタン（SB）はフロップ後にどういうアクション順になりますか？',
+    opts:['A. 最初にアクション','B. 最後にアクション（ラストアクション）','C. 毎回ランダム','D. 毎回BBが先'],
+    ans:1, explain:'ルール34：ヘッズアップではSB＝ボタンとなります。プリフロップはボタン（SB）が先にアクション、フロップ以降はボタン（SB）がラストアクションとなります。' },
+  { ruleN:69, cat:'エチケット・ペナルティ',
+    q:'チップダンピング（コルージョン）が発覚した場合のペナルティは？',
+    opts:['A. 口頭警告','B. 1ラウンドのミス','C. チップの一部没収','D. 即失格'],
+    ans:3, explain:'ルール69：チップダンピングやコルージョン（共謀）は即失格となります。ポーカーは個人ゲームであり、ソフトプレイもペナルティ・失格の対象です。' },
+  { ruleN:42, cat:'ベッティング',
+    q:'ノーリミットで正しいレイズの方法はどれですか？',
+    opts:['A. 複数回に分けてチップを置く','B. まず一部を置いてから残りを追加する','C. 全チップを1モーションで置くか、事前に合計額を声で宣言する','D. 「レイズ」と言えばいつでも後からチップを置ける'],
+    ans:2, explain:'ルール42：NL/PLのレイズは全チップを1モーションで置くか、チップを置く前に合計金額を声で宣言する必要があります。複数回に分けて置くのはストリングベットになります。' },
+];
+
+// ===== STATE =====
+let currentCat = 'all';
+let currentSearch = '';
+let currentModalIndex = -1;
+let filteredRules = [...RULES];
+let currentQuizIndex = -1;
+let currentQuizAnswered = false;
+let currentQuizObj = null;   // 現在表示中のクイズオブジェクト
+let quizShuffleOrder = [];   // 全107ルールのシャッフル済み順序
+let quizShufflePos = 0;      // 現在位置
+
+function buildShuffleOrder() {
+  quizShuffleOrder = RULES.map((_, i) => i).sort(() => Math.random() - 0.5);
+  quizShufflePos = 0;
+}
+
+function makeShortKey(key) {
+  // キーポイントを80字以内に短縮
+  return key.length > 80 ? key.substring(0, 78) + '…' : key;
+}
+
+function buildDynamicQuiz(rule) {
+  const label = rule.label || rule.n;
+  const catLabel = getCatLabel(rule.cat);
+
+  // 正解肢
+  const correctText = makeShortKey(rule.key);
+
+  // 誤答肢: 別カテゴリ優先で3つランダム選択
+  const pool = RULES.filter(r => (r.label || r.n) !== label);
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const wrongs = shuffled.slice(0, 3).map(r => makeShortKey(r.key));
+
+  // 4択をシャッフル
+  const opts = [correctText, ...wrongs];
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  const ansIdx = opts.indexOf(correctText);
+
+  // 問題文
+  const q = `ルール ${label}「${rule.title}」について、正しい説明はどれですか？`;
+
+  return {
+    ruleN: label,
+    cat: catLabel,
+    q,
+    opts: opts.map((o, i) => `${['A','B','C','D'][i]}. ${o}`),
+    ans: ansIdx,
+    explain: rule.body.length > 200 ? rule.body.substring(0, 198) + '…' : rule.body,
+    isDynamic: true,
+    _rule: rule,
+  };
+}
+
+// ===== GLOSSARY DATA =====
+const GLOSSARY = [
+  // A
+  { term:'Action', read:'アクション', def:'プレイヤーが行うゲーム上の行為の総称。Check・Bet・Call・Raise・Fold のいずれか。「アクションが戻ってきた」= 自分の番になった。', related:'Check, Bet, Fold', letter:'A' },
+  { term:'Add-on', read:'アドオン', def:'リバイ期間終了時に1回だけ購入できる追加チップ。通常はスタート量と同じか多めのチップを受け取れる。', related:'Rebuy, Stack', letter:'A' },
+  { term:'Aggressive', read:'アグレッシブ', def:'積極的にBet・Raiseを行うプレイスタイル。受け身のPassiveと対比される。', related:'Passive, Bet, Raise', letter:'A' },
+  { term:'All-In', read:'オールイン', def:'手持ちチップをすべて賭ける行為。オールインプレイヤーはサイドポットに関与しないが、メインポットには勝利できる。', related:'Side Pot, Main Pot', letter:'A' },
+  { term:'Ante', read:'アンティ', def:'各ハンド開始前に全員（またはBBのみ）が強制投入する金額。ポットを膨らませアクションを促進する。', related:'Blind, BB Ante', letter:'A' },
+  { term:'All-In Button', read:'オールインボタン', def:'オールインプレイヤーを示すためにテーブルに置かれるマーカー。TDA推奨手順RP-1で規定。', related:'Lammer, RP-1', letter:'A' },
+  // B
+  { term:'Bad Beat', read:'バッドビート', def:'統計的に有利な手が負けること。例：フラッシュがフルハウスに負ける。カジノによってはBad Beatジャックポットが存在。', related:'Jackpot, Cooler', letter:'B' },
+  { term:'Bankroll', read:'バンクロール', def:'プレイヤーがポーカーに使える総資金。大会参加費・キャッシュゲームの資金管理の基本単位。', related:'Buy-in, Stack', letter:'B' },
+  { term:'BB (Big Blind)', read:'ビッグブラインド', def:'ボタン左から2人目が強制投入するベット。最小ベット額に等しい。プリフロップでの基準額。', related:'SB, Blind, Button', letter:'B' },
+  { term:'BB Ante', read:'BBアンティ', def:'ビッグブラインドポジションのプレイヤーが全員分のアンティを代わりに支払う方式。ゲームスピードを上げる。', related:'Ante, BB', letter:'B' },
+  { term:'Bet', read:'ベット', def:'誰もベットしていない状態で最初にチップを投入するアクション。コール義務を相手に生じさせる。', related:'Raise, Check, Call', letter:'B' },
+  { term:'Blank', read:'ブランク', def:'ボードに出てもハンドのナッツに変化を与えないカード。バリューを持たない無関係なカード。', related:'Board, Runout', letter:'B' },
+  { term:'Blind', read:'ブラインド', def:'ハンド開始前にSBとBBが強制投入するベット。位置によりSB・BBに分かれる。', related:'SB, BB, Ante', letter:'B' },
+  { term:'Bluff', read:'ブラフ', def:'弱いハンドで相手をフォールドさせるためのベット/レイズ。成功すればポットを取れる高リスク戦術。', related:'Semi-Bluff, Value Bet', letter:'B' },
+  { term:'Board', read:'ボード', def:'テーブルに表向きに置かれたコミュニティカードの総称（フロップ+ターン+リバー=最大5枚）。', related:'Flop, Turn, River', letter:'B' },
+  { term:'Bounty', read:'バウンティ', def:'特定プレイヤーをエリミネートした際に得られる賞金。バウンティトーナメント専用のメカニズム。', related:'KO Tournament, Prize', letter:'B' },
+  { term:'Button (BTN)', read:'ボタン', def:'ディーラーポジションを示す丸いディスク（パック）。最後にアクションするため最も有利なポジション。', related:'Dealer, Position, SB, BB', letter:'B' },
+  { term:'Buy-in', read:'バイイン', def:'トーナメントまたはキャッシュゲームに参加するために必要な金額。', related:'Stack, Entry Fee', letter:'B' },
+  // C
+  { term:'Call', read:'コール', def:'相手のベット/レイズと同額を支払い、ハンドを継続するアクション。', related:'Bet, Raise, Fold', letter:'C' },
+  { term:'Cap', read:'キャップ', def:'1ストリートあたりのレイズ回数の上限。TDAルール48によりヘッズアップ時もキャップが適用される（最終2名を除く）。', related:'Raise, Limit, Rule 48', letter:'C' },
+  { term:'Card Speak', read:'カードスピーク', def:'ショーダウン時はカードの内容そのものがハンドを決定し、口頭宣言に誤りがあっても正確な手が評価される原則。TDAルール57。', related:'Showdown, Rule 57', letter:'C' },
+  { term:'Cash Game', read:'キャッシュゲーム', def:'リングゲームとも呼ばれる。チップが実際の現金と等価で、いつでも入退場できるゲーム形式。トーナメントと対比。', related:'Tournament, Ring Game', letter:'C' },
+  { term:'Check', read:'チェック', def:'ベットなしの状態でアクションをパスするアクション。次のプレイヤーへアクションが移る。', related:'Bet, Call, Fold', letter:'C' },
+  { term:'Check-Raise', read:'チェックレイズ', def:'チェックした後に相手のベットに対しレイズするアクション。罠（トラップ）として強力な手段。', related:'Check, Raise, Trap', letter:'C' },
+  { term:'Chip Dumping', read:'チップダンピング', def:'意図的に特定プレイヤーにチップを移す不正行為。コラジョン（共謀）の一形態。TDA非倫理的行為として禁止。', related:'Collusion, Ethics', letter:'C' },
+  { term:'Chip Race', read:'チップレース', def:'小額チップを切り上げる際に行うカードを使った手続き。各プレイヤーが端数枚数分のカードを受け取り、高い順に1枚ずつ割り当てる。', related:'Color Up, Denomination', letter:'C' },
+  { term:'Chop', read:'チョップ', def:'①同じハンドでポットを分割すること。②トーナメントでファイナルテーブルプレイヤーが残賞金を合意分割すること。', related:'Split Pot, Deal', letter:'C' },
+  { term:'Clock', read:'クロック', def:'プレイヤーの行動時間に制限を設けるルール。TDAルール46でフロアが最低60秒のタイムバンクを与える義務。', related:'Time Bank, Rule 46', letter:'C' },
+  { term:'Collusion', read:'コラジョン', def:'2人以上のプレイヤーが共謀してゲームの公正性を損なう行為。TDA重大違反として失格・没収の対象。', related:'Ethics, Chip Dumping', letter:'C' },
+  { term:'Color Up', read:'カラーアップ', def:'低額面チップを高額面チップに交換する手続き。通常ブラインドレベル変更時に実施。', related:'Chip Race, Denomination', letter:'C' },
+  { term:'Community Cards', read:'コミュニティカード', def:'全プレイヤーが共有するボード上のカード。ホールデム/オマハでは最大5枚。', related:'Board, Flop, Turn, River', letter:'C' },
+  { term:'Cooler', read:'クーラー', def:'両者ともに非常に強い手を持ち、どちらかが必然的に大きく負けるシチュエーション。例：セットvsセット。', related:'Bad Beat, Set', letter:'C' },
+  // D
+  { term:'Dead Blind', read:'デッドブラインド', def:'ポストしたブラインドがライブではなく、レイズ時の一部として機能しないケース。', related:'Live Blind, Post', letter:'D' },
+  { term:'Dead Button', read:'デッドボタン', def:'ボタンポジションのプレイヤーが不在の際にボタンのみ進める処理方式。TDAでは通常Moving Buttonを使用。', related:'Moving Button, Button', letter:'D' },
+  { term:'Dead Hand', read:'デッドハンド', def:'ルール違反などによりプレイできなくなったハンド。TDA複数のルールで条件が規定されている。', related:'Misdeal, Foul Hand', letter:'D' },
+  { term:'Dealer', read:'ディーラー', def:'カードを配る人。カジノではプロのディーラーが行い、ホームゲームではプレイヤーが交代する。ボタンが「ディーラーポジション」を示す。', related:'Button, Pitch', letter:'D' },
+  { term:'Donk Bet', read:'ドンクベット', def:'前のストリートでコールした側（インポジション外）が次のストリートでリードしてベットすること。', related:'C-Bet, Position', letter:'D' },
+  { term:'Double Up', read:'ダブルアップ', def:'オールインが成功してチップが2倍になること。', related:'All-In, Stack', letter:'D' },
+  { term:'Draw', read:'ドロー', def:'ストレートやフラッシュを完成させるために不足カードを待っている状態のハンド。', related:'Flush Draw, Straight Draw, Outs', letter:'D' },
+  // E
+  { term:'Early Position (EP)', read:'アーリーポジション', def:'アクション順が最も早いポジション（UTG付近）。情報が少ない不利なポジション。', related:'UTG, Position, Late Position', letter:'E' },
+  { term:'Entry Fee', read:'エントリーフィー', def:'バイイン額のうちカジノやトーナメント運営に支払われる手数料部分。レーキとも呼ばれる。', related:'Buy-in, Rake', letter:'E' },
+  { term:'Equity', read:'エクイティ', def:'ポットに対する自分のハンドの統計的期待取り分（%）。例：フリップ（50/50）はそれぞれ50%のエクイティ。', related:'Pot Odds, EV', letter:'E' },
+  { term:'EV (Expected Value)', read:'期待値', def:'あるアクションを長期的に繰り返した際の平均的な利益または損失。+EVなら長期的に有益。', related:'Equity, Pot Odds', letter:'E' },
+  // F
+  { term:'Final Table', read:'ファイナルテーブル', def:'トーナメント最終テーブル（通常9名）。最も賞金が大きく注目されるステージ。', related:'ITM, Bubble, Prize', letter:'F' },
+  { term:'Fish', read:'フィッシュ', def:'弱いプレイヤーへの俗称。意図的に非効率な判断をするプレイヤーへの蔑称でもある。', related:'Shark, Whale', letter:'F' },
+  { term:'Flop', read:'フロップ', def:'テキサスホールデムで一度に3枚公開されるコミュニティカードの最初のラウンド。', related:'Turn, River, Board', letter:'F' },
+  { term:'Floor (Floorperson)', read:'フロア', def:'テーブルのルール適用・裁定を行う大会スタッフ。TDAルールではフロアの裁定が最終判断。', related:'TD, Ruling', letter:'F' },
+  { term:'Fold', read:'フォールド', def:'ハンドを放棄するアクション。そのハンドのポットへの権利を失う。', related:'Call, Bet, Muck', letter:'F' },
+  { term:'Fold Equity', read:'フォールドエクイティ', def:'相手をフォールドさせられる可能性から生まれるベットの価値。ブラフの根拠となる概念。', related:'Bluff, Equity', letter:'F' },
+  { term:'Foul Hand', read:'ファウルハンド', def:'ルール違反（枚数不足など）によりデッドとなるハンド。TDAルール38で定義。', related:'Dead Hand, Misdeal', letter:'F' },
+  { term:'Freeze-out', read:'フリーズアウト', def:'リバイなし・アドオンなしの標準的なトーナメント形式。チップがゼロになったら終了。', related:'Rebuy, Add-on', letter:'F' },
+  { term:'Full House', read:'フルハウス', def:'スリーカードとワンペアの組み合わせ（例：AAAxx+KK）。フラッシュより強い。', related:'Hand Rankings, Three of a Kind', letter:'F' },
+  // G
+  { term:'GTO (Game Theory Optimal)', read:'ゲームセオリーオプティマル', def:'ゲーム理論上搾取されない最適戦略。相手の戦略に関わらず長期的に損しない均衡点。', related:'Exploitative, EV, Equity', letter:'G' },
+  { term:'Gutshot', read:'ガットショット', def:'内側の1枚だけが必要なストレートドロー（片側）。8アウツのオープンエンドより確率が低い（4アウツ）。', related:'Straight Draw, Outs, OESD', letter:'G' },
+  // H
+  { term:'Hand', read:'ハンド', def:'①1回のゲーム（ディールからショーダウンまで）。②プレイヤーが持つホールカードの組み合わせ。', related:'Hole Cards, Round', letter:'H' },
+  { term:'Hand Rankings', read:'ハンドランキング', def:'ポーカーにおけるハンドの強さの順位。ロイヤルフラッシュが最強、ハイカードが最弱（標準）。', related:'Showdown, Card Speak', letter:'H' },
+  { term:'H4H (Hand for Hand)', read:'ハンドフォーハンド', def:'バブル時に全テーブルが同じペースで1ハンドずつ進める方式。同時エリミネートの公平性を保つ。', related:'Bubble, ITM', letter:'H' },
+  { term:'Heads-Up (HU)', read:'ヘッズアップ', def:'2人だけで戦う状況。トーナメント最終2名またはキャッシュゲームの1対1対戦。', related:'Cap, Button, Blind', letter:'H' },
+  { term:'Hero Call', read:'ヒーローコール', def:'相手がブラフだと読み、弱めのハンドでコールすること。成功すればポットを取れる。', related:'Bluff, Call, Read', letter:'H' },
+  { term:'Hole Cards', read:'ホールカード', def:'各プレイヤーに配られる非公開カード。テキサスホールデムでは2枚、オマハでは4枚。', related:'Community Cards, Hand', letter:'H' },
+  // I
+  { term:'Implied Odds', read:'インプライドオッズ', def:'現在のポット+将来のベットを考慮した期待収支。ドロー系のコール判断に使われる。', related:'Pot Odds, Outs, Draw', letter:'I' },
+  { term:'ITM (In The Money)', read:'入賞圏内', def:'賞金を獲得できる順位に残ること。バブルを越えるとITMと言われる。', related:'Bubble, Prize Pool, Cash', letter:'I' },
+  // J
+  { term:'Jackpot', read:'ジャックポット', def:'特定条件（例：クアッズ以上がビートされる）を満たした際に支払われる特別賞金。', related:'Bad Beat, Prize', letter:'J' },
+  // K
+  { term:'Kicker', read:'キッカー', def:'同ランクの手が並んだ際に勝敗を決める補助カード。例：AKvsAQ → Kがキッカーで勝ち。', related:'Tie, Chop, Hand Rankings', letter:'K' },
+  { term:'KO (Knock Out)', read:'ノックアウト', def:'他のプレイヤーをエリミネートすること。KOトーナメントではバウンティ賞金が発生。', related:'Bounty, Eliminate', letter:'K' },
+  // L
+  { term:'Lammer', read:'ラマー', def:'トーナメントでオールインや特定状態を示すために使うマーカーチップ。', related:'All-In Button, Marker', letter:'L' },
+  { term:'Late Position (LP)', read:'レイトポジション', def:'アクション順が遅いポジション（BTN・CO付近）。情報が多く有利なポジション。', related:'Button, Cutoff, Position', letter:'L' },
+  { term:'Limp', read:'リンプ', def:'プリフロップでBB額のみコールして参加すること。積極的にレイズしない受け身の参加。', related:'Open Raise, Call, BB', letter:'L' },
+  { term:'Live Blind', read:'ライブブラインド', def:'投入したブラインドがプリフロップでレイズのオプションを持つ生きたブラインド。通常のSB/BBはライブ。', related:'Dead Blind, Straddle', letter:'L' },
+  { term:'Live Hand', read:'ライブハンド', def:'まだ有効なハンド。フォールドやデッドハンドになっていない状態。', related:'Dead Hand, Fold', letter:'L' },
+  // M
+  { term:'Main Pot', read:'メインポット', def:'オールインプレイヤーが争えるポット。サイドポットと区別される。', related:'Side Pot, All-In', letter:'M' },
+  { term:'Misdeal', read:'ミスディール', def:'配牌ミスにより最初からやり直しになること。TDAルール30〜31で規定。', related:'Dead Hand, Rule 30', letter:'M' },
+  { term:'Muck', read:'マック', def:'ハンドを裏向きのまま捨てること。フォールドまたはショーダウン後の敗者がカードを見せずに捨てる。', related:'Fold, Showdown, Dead Cards', letter:'M' },
+  { term:'Multi-Table Tournament (MTT)', read:'マルチテーブルトーナメント', def:'複数テーブルで同時開始し、プレイヤーが減るにつれてテーブルを統合していくトーナメント形式。', related:'SNG, Final Table', letter:'M' },
+  // N
+  { term:'Nuts', read:'ナッツ', def:'現在のボードで可能な最強のハンド。ナッツを持つ状態を「ナッツがある」という。', related:'Board, Hand Rankings, Nut Flush', letter:'N' },
+  { term:'Nut Flush', read:'ナッツフラッシュ', def:'そのスートにおける最強のフラッシュ（Aハイフラッシュ）。', related:'Flush, Nuts', letter:'N' },
+  // O
+  { term:'OESD (Open-Ended Straight Draw)', read:'オープンエンドストレートドロー', def:'両端から完成できるストレートドロー（8アウツ）。例：5-6-7-8は4または9で完成。', related:'Gutshot, Outs, Draw', letter:'O' },
+  { term:'OOT (Out of Turn)', read:'アウトオブターン', def:'自分のアクション順でないときにアクションを行うこと。TDAルール52〜53Bで詳細規定。', related:'Rule 52, Rule 53, Action', letter:'O' },
+  { term:'Open Raise', read:'オープンレイズ', def:'誰もコール・レイズしていない状態で最初にレイズして参加すること。', related:'Limp, Raise, UTG', letter:'O' },
+  { term:'Outs', read:'アウツ', def:'ドローを完成させる残りのカードの枚数。例：フラッシュドロー=9アウツ。', related:'Draw, Equity, Implied Odds', letter:'O' },
+  { term:'Overlay', read:'オーバーレイ', def:'保証賞金額がエントリー合計を超えた場合の差額。プレイヤーにとって有利。', related:'Guarantee, Prize Pool', letter:'O' },
+  // P
+  { term:'Pat Hand', read:'パットハンド', def:'ドローなしで完成している手。フォードロー系ゲームでカードを交換しない強い手。', related:'Draw, Made Hand', letter:'P' },
+  { term:'Pitch', read:'ピッチ', def:'ディーラーがカードを滑らせて配る動作。スライド配牌とも呼ばれる。', related:'Dealer, Deal', letter:'P' },
+  { term:'Position', read:'ポジション', def:'テーブル上でのアクション順序。後からアクションできるほど有利（インポジション）。', related:'Button, Early Position, Late Position', letter:'P' },
+  { term:'Post', read:'ポスト', def:'ブラインドを強制投入すること。中途参加者が強制的にポストするケースもある。', related:'Blind, Dead Blind', letter:'P' },
+  { term:'Pot', read:'ポット', def:'そのハンドで集められたチップの合計。勝者が獲得する。', related:'Main Pot, Side Pot', letter:'P' },
+  { term:'Pot Odds', read:'ポットオッズ', def:'コールに必要な額とポット合計の比率。アウツのエクイティと比較してコールの是非を判断。', related:'Equity, Implied Odds, Outs', letter:'P' },
+  { term:'Prize Pool', read:'プライズプール', def:'賞金総額。各順位への配分はトーナメントパービーに従う。', related:'ITM, Buy-in', letter:'P' },
+  // R
+  { term:'Rabbit Hunting', read:'ラビットハンティング', def:'ハンド終了後に配られなかったカードを見せてもらうこと。TDAルール61では許可・禁止をTDが決定できる。', related:'Rule 61, Runout', letter:'R' },
+  { term:'Rake', read:'レーキ', def:'カジノがポットや参加費から徴収する手数料。', related:'Entry Fee, Buy-in', letter:'R' },
+  { term:'Raise', read:'レイズ', def:'既存のベット額を上回る追加投資。相手に再コールまたは再レイズを強いる。', related:'Bet, Call, 3-Bet', letter:'R' },
+  { term:'Rebuy', read:'リバイ', def:'脱落またはショートスタック時に追加のチップセットを購入する権利。リバイ可能期間が設けられる。', related:'Add-on, Freeze-out', letter:'R' },
+  { term:'River', read:'リバー', def:'テキサスホールデムで5枚目（最後）のコミュニティカードが公開されるストリート。', related:'Flop, Turn, Board', letter:'R' },
+  { term:'Ruling', read:'ルーリング', def:'フロアやTDによる裁定・判断。TDAルール1でフロアの判断が最終とされる。', related:'Floor, TD, Rule 1', letter:'R' },
+  { term:'Runout', read:'ランナーランナー / ランアウト', def:'ターン・リバーの残りカードの展開。ランナーランナーは連続で必要カードが出ること。', related:'Turn, River, Draw', letter:'R' },
+  // S
+  { term:'SB (Small Blind)', read:'スモールブラインド', def:'ボタン左隣のプレイヤーが投入する強制ベット。BBの通常半分。', related:'BB, Blind, Button', letter:'S' },
+  { term:'Semi-Bluff', read:'セミブラフ', def:'現時点では弱いがドロー中のハンドでのブラフ。外れてもドローが完成する可能性がある。', related:'Bluff, Draw, Outs', letter:'S' },
+  { term:'Set', read:'セット', def:'ホールカード1枚とボード2枚で完成するスリーカード。トリップスと区別される（より強い）。', related:'Trips, Three of a Kind', letter:'S' },
+  { term:'Shark', read:'シャーク', def:'熟練した強いポーカープレイヤーへの俗称。フィッシュと対比。', related:'Fish, Whale', letter:'S' },
+  { term:'Showdown', read:'ショーダウン', def:'ベッティングラウンド終了後にプレイヤーがカードをオープンして勝敗を決める手続き。TDAルール57〜59で規定。', related:'Card Speak, Muck, Rule 57', letter:'S' },
+  { term:'Side Pot', read:'サイドポット', def:'オールインプレイヤーが関与しない追加のポット。複数のオールインがある場合に複数のサイドポットが発生。', related:'Main Pot, All-In', letter:'S' },
+  { term:'SNG (Sit and Go)', read:'シットアンドゴー', def:'テーブルが満員になった時点で開始するトーナメント。通常6〜9名のシングルテーブル。', related:'MTT, Freeze-out', letter:'S' },
+  { term:'Splash the Pot', read:'スプラッシュザポット', def:'チップをポットに投げ込む無効な行為。すべてのベットはポット前に積み上げる必要がある（TDAルール42）。', related:'Rule 42, Bet, Wager', letter:'S' },
+  { term:'Stack', read:'スタック', def:'プレイヤーが保有するチップの合計額。', related:'Buy-in, All-In', letter:'S' },
+  { term:'Straddle', read:'ストラドル', def:'UTGがプリフロップにBBの2倍を自発的に投入するオプションベット。ライブブラインドとして機能。', related:'Live Blind, BB, UTG', letter:'S' },
+  { term:'String Bet', read:'ストリングベット', def:'ベットやレイズを複数動作に分けて行う無効なアクション。一動作で完結させる必要がある（TDAルール45）。', related:'Rule 45, Bet, Raise', letter:'S' },
+  // T
+  { term:'TD (Tournament Director)', read:'トーナメントディレクター', def:'大会全体の運営・ルール適用を統括するスタッフ。フロアの上位権限を持つ。', related:'Floor, Ruling', letter:'T' },
+  { term:'Tell', read:'テル', def:'相手の手の強さを示す無意識の仕草や癖。', related:'Read, Poker Face', letter:'T' },
+  { term:'Three-Bet (3-Bet)', read:'スリーベット', def:'オープンレイズに対する再レイズ。プリフロップで頻繁に使われる概念。', related:'Raise, 4-Bet, Open Raise', letter:'T' },
+  { term:'Time Bank', read:'タイムバンク', def:'追加の考慮時間。TDAルール46でフロアが最低60秒のクロックを設定。', related:'Clock, Rule 46', letter:'T' },
+  { term:'Tournament', read:'トーナメント', def:'一定のバイインで参加し、チップゼロになったら終了の競技形式。賞金は上位入賞者に配分。', related:'Cash Game, MTT, SNG', letter:'T' },
+  { term:'Trips', read:'トリップス', def:'ボード上の2枚と手札1枚で完成するスリーカード。セット（手札2枚+ボード1枚）と区別。', related:'Set, Three of a Kind', letter:'T' },
+  { term:'Turn', read:'ターン', def:'テキサスホールデムで4枚目のコミュニティカードが公開されるストリート。', related:'Flop, River, Board', letter:'T' },
+  // U
+  { term:'UTG (Under the Gun)', read:'アンダーザガン', def:'プリフロップで最初にアクションしなければならないポジション（BBの左隣）。最も不利なポジション。', related:'Early Position, Open Raise, Limp', letter:'U' },
+  // V
+  { term:'Value Bet', read:'バリューベット', def:'強いハンドで相手にコールさせることを目的としたベット。ブラフの逆。', related:'Bluff, Bet, Equity', letter:'V' },
+  { term:'VPIP', read:'ブイピップ', def:'自発的にポットに参加した割合（%）。プレイヤーのプレイスタイル指標。高い=ルーズ、低い=タイト。', related:'Stats, Style', letter:'V' },
+  // W
+  { term:'Whale', read:'ホエール', def:'大額の資金を持つルーズなプレイヤー。フィッシュの大型版。', related:'Fish, Bankroll', letter:'W' },
+  { term:'Wager', read:'ウェイジャー', def:'ベットやレイズの総称。TDAルールでの正式表現。', related:'Bet, Raise, Rule 42', letter:'W' },
+];
+
+// ===== GLOSSARY STATE =====
+let glossaryActiveLetter = 'ALL';
+let glossarySearchQuery = '';
+
+function openGlossary() {
+  document.getElementById('glossaryOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderGlossaryAlpha();
+  renderGlossary();
+  setTimeout(() => document.getElementById('glossarySearch').focus(), 100);
+}
+
+function closeGlossary() {
+  document.getElementById('glossaryOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function glossaryOverlayClick(e) {
+  if (e.target === document.getElementById('glossaryOverlay')) closeGlossary();
+}
+
+function renderGlossaryAlpha() {
+  const letters = ['ALL', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+  const usedLetters = new Set(GLOSSARY.map(g => g.letter));
+  const el = document.getElementById('glossaryAlpha');
+  el.innerHTML = letters.map(l => {
+    const disabled = l !== 'ALL' && !usedLetters.has(l) ? 'disabled' : '';
+    const active = glossaryActiveLetter === l ? 'active' : '';
+    return `<button class="alpha-btn ${active} ${disabled}" onclick="setGlossaryLetter('${l}')">${l}</button>`;
+  }).join('');
+}
+
+function setGlossaryLetter(l) {
+  glossaryActiveLetter = l;
+  glossarySearchQuery = '';
+  document.getElementById('glossarySearch').value = '';
+  renderGlossaryAlpha();
+  renderGlossary();
+}
+
+function onGlossarySearch(q) {
+  glossarySearchQuery = q;
+  glossaryActiveLetter = 'ALL';
+  renderGlossaryAlpha();
+  renderGlossary();
+}
+
+function renderGlossary() {
+  const q = glossarySearchQuery.toLowerCase();
+  let items = GLOSSARY;
+  if (q) {
+    items = items.filter(g =>
+      g.term.toLowerCase().includes(q) ||
+      g.read.includes(q) ||
+      g.def.includes(q) ||
+      (g.related || '').toLowerCase().includes(q)
+    );
+  } else if (glossaryActiveLetter !== 'ALL') {
+    items = items.filter(g => g.letter === glossaryActiveLetter);
+  }
+
+  document.getElementById('glossaryCount').textContent = `${items.length} 件の用語`;
+
+  if (items.length === 0) {
+    document.getElementById('glossaryList').innerHTML = '<div style="color:#888;text-align:center;padding:40px 0;">該当する用語が見つかりません</div>';
+    return;
+  }
+
+  // Group by letter
+  const groups = {};
+  items.forEach(g => {
+    if (!groups[g.letter]) groups[g.letter] = [];
+    groups[g.letter].push(g);
+  });
+
+  const sortedLetters = Object.keys(groups).sort();
+  const html = sortedLetters.map(letter => `
+    <div class="glossary-letter-section">
+      <div class="glossary-letter-heading">${letter}</div>
+      <div class="glossary-grid">
+        ${groups[letter].map((g, i) => `
+          <div class="glossary-card" onclick="openGlossaryDetail(${GLOSSARY.indexOf(g)})">
+            <div class="glossary-term">${g.term}</div>
+            <div class="glossary-read">${g.read}</div>
+            <div class="glossary-def">${g.def.length > 60 ? g.def.substring(0, 58) + '…' : g.def}</div>
+            ${g.related ? `<span class="glossary-tag">関連: ${g.related.split(',')[0].trim()}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('glossaryList').innerHTML = html;
+}
+
+function openGlossaryDetail(idx) {
+  const g = GLOSSARY[idx];
+  document.getElementById('gdTerm').textContent = g.term;
+  document.getElementById('gdRead').textContent = g.read;
+  document.getElementById('gdDef').innerHTML = g.def.replace(/\n/g, '<br>');
+  document.getElementById('gdRelated').textContent = g.related ? '関連用語: ' + g.related : '';
+  document.getElementById('glossaryDetailOverlay').classList.add('open');
+}
+
+function closeGlossaryDetail() {
+  document.getElementById('glossaryDetailOverlay').classList.remove('open');
+}
+
+// ===== INIT =====
+function init() {
+  renderCats();
+  renderRules();
+  document.getElementById('searchInput').addEventListener('input', onSearch);
+}
+
+function renderCats() {
+  const tab = document.getElementById('catTabs');
+  tab.innerHTML = CATEGORIES.map(c => {
+    const count = c.id === 'all' ? RULES.length : RULES.filter(r=>r.cat===c.id).length;
+    return `<button class="cat-tab ${c.id==='all'?'active':''}" data-cat="${c.id}" onclick="selectCat('${c.id}')">
+      <span class="icon">${c.icon}</span>${c.label}<span class="count">${count}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+  const found = CATEGORIES.find(c=>c.id===cat);
+  document.getElementById('sectionTitle').textContent = found ? found.label : '全ルール';
+  renderRules();
+}
+
+function onSearch(e) {
+  currentSearch = e.target.value.trim();
+  document.getElementById('searchClear').style.display = currentSearch ? 'block' : 'none';
+  renderRules();
+}
+
+function clearSearch() {
+  currentSearch = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  renderRules();
+}
+
+function getFilteredRules() {
+  return RULES.filter(r => {
+    const matchCat = currentCat === 'all' || r.cat === currentCat;
+    const q = currentSearch.toLowerCase();
+    const matchSearch = !q || String(r.n).includes(q) || r.title.toLowerCase().includes(q) ||
+      r.body.toLowerCase().includes(q) || r.tags.some(t=>t.toLowerCase().includes(q));
+    return matchCat && matchSearch;
+  });
+}
+
+function getCatLabel(catId) {
+  const c = CATEGORIES.find(x=>x.id===catId);
+  return c ? `${c.icon} ${c.label}` : catId;
+}
+
+function renderRules() {
+  filteredRules = getFilteredRules();
+  const grid = document.getElementById('rulesGrid');
+  const noRes = document.getElementById('noResults');
+  document.getElementById('rulesCount').textContent = `${filteredRules.length}件`;
+  if (!filteredRules.length) { grid.innerHTML=''; noRes.style.display='block'; return; }
+  noRes.style.display = 'none';
+  grid.innerHTML = filteredRules.map((r, i) => `
+    <div class="rule-card" onclick="openModal(${RULES.indexOf(r)})">
+      <div class="rule-card-top">
+        <div class="rule-num" style="font-size:${String(r.label||r.n).length>4?'10px':'13px'}">${r.label||r.n}</div>
+        <div class="rule-info">
+          <div class="rule-cat-badge">${getCatLabel(r.cat)}</div>
+          <div class="rule-title">${r.title}</div>
+        </div>
+      </div>
+      <div class="rule-excerpt">${r.body}</div>
+      <div class="rule-card-footer"><span class="rule-arrow">→</span></div>
+    </div>`).join('');
+}
+
+// ===== MODAL =====
+function openModal(idx) {
+  currentModalIndex = idx;
+  const r = RULES[idx];
+  document.getElementById('mNum').textContent = r.label || r.n;
+  document.getElementById('mNum').style.fontSize = String(r.label||r.n).length > 4 ? '12px' : '18px';
+  document.getElementById('mCat').textContent = getCatLabel(r.cat);
+  document.getElementById('mTitle').textContent = r.title;
+  document.getElementById('mBody').textContent = r.body;
+  const keyEl = document.getElementById('mKey');
+  if (r.key) { keyEl.textContent = '📌 ' + r.key; keyEl.style.display='block'; }
+  else keyEl.style.display = 'none';
+  document.getElementById('mTags').innerHTML = r.tags.map(t=>`<span class="modal-tag">#${t}</span>`).join('');
+  document.getElementById('mPrev').disabled = idx === 0;
+  document.getElementById('mNext').disabled = idx === RULES.length-1;
+  document.getElementById('ruleModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function navModal(dir) {
+  const newIdx = currentModalIndex + dir;
+  if (newIdx >= 0 && newIdx < RULES.length) openModal(newIdx);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('ruleModal')) closeRuleModal();
+}
+
+function closeRuleModal() {
+  document.getElementById('ruleModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ===== QUIZ =====
+function openQuiz() {
+  if (!quizShuffleOrder.length) buildShuffleOrder();
+  generateQuiz();
+  document.getElementById('quizOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuiz() {
+  document.getElementById('quizOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeQuizOverlay(e) {
+  if (e.target === document.getElementById('quizOverlay')) closeQuiz();
+}
+
+function generateQuiz() {
+  currentQuizAnswered = false;
+
+  // シャッフル順が空/終了したら再構築
+  if (!quizShuffleOrder.length || quizShufflePos >= quizShuffleOrder.length) buildShuffleOrder();
+
+  // 全107ルール → 動的生成 (手作りQUIZZESも20%で混在)
+  let q;
+  const useHandcrafted = QUIZZES.length > 0 && Math.random() < 0.2;
+  if (useHandcrafted) {
+    let idx;
+    do { idx = Math.floor(Math.random() * QUIZZES.length); } while (idx === currentQuizIndex && QUIZZES.length > 1);
+    currentQuizIndex = idx;
+    q = QUIZZES[idx];
+    q.isDynamic = false;
+  } else {
+    const ruleIdx = quizShuffleOrder[quizShufflePos++];
+    q = buildDynamicQuiz(RULES[ruleIdx]);
+    currentQuizIndex = -1;
+  }
+  currentQuizObj = q;
+
+  document.getElementById('qRuleBadge').textContent = `RULE ${q.ruleN}`;
+  document.getElementById('qCatLabel').textContent = typeof q.cat === 'string' ? q.cat : q.cat;
+  document.getElementById('qQuestion').textContent = q.q;
+  document.getElementById('qAnswerBox').classList.remove('show');
+  document.getElementById('qAnswerBox').innerHTML = '';
+  document.getElementById('qOptions').innerHTML = q.opts.map((o,i) => `
+    <button class="quiz-option" onclick="selectAnswer(${i})" id="qOpt${i}">
+      <span class="opt-label">${['A','B','C','D'][i]}.</span><span class="opt-text">${o.slice(3)}</span>
+    </button>`).join('');
+
+  // 進捗表示
+  const total = RULES.length;
+  const done = quizShufflePos;
+  document.getElementById('quizProgress').textContent = useHandcrafted
+    ? `手作りクイズ`
+    : `${done} / ${total} ルール`;
+
+  generatePostText(q);
+  document.getElementById('copyBtn').textContent = '📋 コピー';
+  document.getElementById('copyBtn').classList.remove('copied');
+}
+
+function selectAnswer(chosen) {
+  if (currentQuizAnswered) return;
+  currentQuizAnswered = true;
+  const q = currentQuizObj;
+  q.opts.forEach((_, i) => {
+    const el = document.getElementById(`qOpt${i}`);
+    if (i === q.ans) el.classList.add('correct');
+    else if (i === chosen && i !== q.ans) el.classList.add('wrong');
+    el.style.pointerEvents = 'none';
+  });
+  const box = document.getElementById('qAnswerBox');
+  box.innerHTML = `<strong>✅ 解説（ルール ${q.ruleN}）：</strong><br>${q.explain}`;
+  box.classList.add('show');
+}
+
+const POST_TEMPLATES = [
+  (q, rule) => `🃏 #TDAポーカークイズ
+
+Q. ${q.q}
+
+${q.opts.join('\n')}
+
+⬇️ 答えは下に
+.
+.
+.
+✅ 正解：${q.opts[q.ans]}
+
+📖 ${q.explain}
+
+#ポーカー #TDA #トーナメント #ポーカールール`,
+
+  (q, rule) => `♠️ ポーカーTDA知識クイズ #${q.ruleN}
+
+${q.q}
+
+${q.opts.map((o,i)=>i===q.ans?`👉 ${o}`:o).join('\n')}
+
+解説：${q.explain}
+
+#PokerTDA #ポーカー #トーナメントルール #TDA2024`,
+
+  (q, rule) => `【TDA Quiz】ルール${q.ruleN}：${rule ? rule.title : ''}
+
+❓ ${q.q}
+
+${q.opts.join('\n')}
+
+―
+正解：${q.opts[q.ans]}
+${q.explain}
+
+#ポーカー #TDA #カジノ #PokerRules`,
+];
+
+function generatePostText(q) {
+  const rule = q._rule || RULES.find(r => String(r.label || r.n) === String(q.ruleN));
+  const tmpl = POST_TEMPLATES[Math.floor(Math.random() * POST_TEMPLATES.length)];
+  document.getElementById('qPostText').textContent = tmpl(q, rule);
+}
+
+function regenPost() {
+  const q = currentQuizObj;
+  generatePostText(q);
+  document.getElementById('copyBtn').textContent = '📋 コピー';
+  document.getElementById('copyBtn').classList.remove('copied');
+}
+
+function copyPost() {
+  const text = document.getElementById('qPostText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ コピーしました';
+    btn.classList.add('copied');
+    showToast('クリップボードにコピーしました');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
